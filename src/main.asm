@@ -9,14 +9,14 @@
 main:
   call _RunIndicOff
   call _ClrLCDAll
+  call lcd_init
 
-  call _HomeUp
-  ld hl, TextHelloWorld
-  call _PutS
+  call player_init
 exit:
   call _ClrScrnFull
+  call lcd_clean_up
   call _HomeUp
   jp _DrawStatusBar
 
-TextHelloWorld:
-  .db "Hello, World!"
+#include "src/gfx.asm"
+#include "src/player.asm"
