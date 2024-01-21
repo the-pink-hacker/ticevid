@@ -2,5 +2,34 @@
 command = "spasm"
 args = ["-E", "src/main.asm", "bin/ticevid.8xp"]
 
+[tasks.encode_video]
+command = "ffmpeg"
+args = [
+# "You like jazz?"
+  "-ss",
+  "1393",
+  "-t",
+  "5",
+  "-probesize",
+  "100M",
+  "-analyzeduration",
+  "100M",
+  "-an",
+  "-sn",
+  "-y",
+  "-i",
+  "resources/raw/video.mkv",
+  "-r",
+  "3",
+  "-vf",
+  "scale=320x240",
+  "resources/video/video%d.png",
+]
+
 [tasks.clean]
-command = "rm bin/*"
+command = "rm"
+args = [
+  "-f",
+  "bin/*",
+  "resources/video/*",
+]
