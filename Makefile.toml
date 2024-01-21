@@ -1,0 +1,6 @@
+[tasks.ticevid]
+command = "spasm"
+args = ["-E", "src/main.asm", "bin/ticevid.8xp"]
+
+[tasks.clean]
+command = "rm bin/*"
