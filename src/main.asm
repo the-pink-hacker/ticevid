@@ -1,22 +1,20 @@
-.nolist
-#include "includes/ti84pce.inc"
-.list
+include "include/ti84pceg.inc"
+include "include/ez80.inc"
+include "include/tiformat.inc"
+format ti executable "TICEVID"
 
-.org userMem - 2
-.assume ADL = 1
+ticevid:
+    call ti.ClrScrnFull
+    call ti.HomeUp
 
-.db tExtTok, tAsm84CeCmp
-main:
-  call _RunIndicOff
-  call _ClrLCDAll
-  call lcd_init
+    ld hl, .text
+    call ti.PutS
+  
+    call ti.GetKey
 
-  call player_init
-exit:
-  call _ClrScrnFull
-  call lcd_clean_up
-  call _HomeUp
-  jp _DrawStatusBar
+.exit:
+    call ti.ClrScrnFull
+    ret
 
-#include "src/gfx.asm"
-#include "src/player.asm"
+.text:
+    db "Hello World!", 0

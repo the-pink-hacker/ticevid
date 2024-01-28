@@ -1,6 +1,6 @@
 [tasks.ticevid]
-command = "spasm"
-args = ["-E", "src/main.asm", "bin/ticevid.8xp"]
+command = "fasmg"
+args = ["src/main.asm", "bin/ticevid.8xp"]
 
 [tasks.encode_video]
 command = "ffmpeg"
@@ -21,8 +21,10 @@ args = [
   "resources/raw/video.mkv",
   "-r",
   "3",
+  "-pix_fmt",
+  "rgb24",
   "-vf",
-  "scale=320x240",
+  "crop=iw-400,scale=320:240",
   "resources/video/video%d.png",
 ]
 
