@@ -35,30 +35,36 @@ failed_to_load_libs:
     jp ti.PutS
 
     .text:
-        db "Failed to load libs.", 0
+        string "Failed to load libs."
 
 
 relocations:
 libload_libload:
-    db $C0, "LibLoad", 0, $1F
+    libload_header "LibLoad", 31
 
+msddrvce:
+    libload_header "MSDDRVCE", 1
 
-; -----------------------------------------------------
-; put the libraries here
-; see below code snippet for information
-; -----------------------------------------------------
+    libload_func .Open, 0
+    libload_func .Close, 1
 
-usb:
-    db $C0, "USBDRVCE", 0, 0
+graphx:
+    libload_header "GRAPHX", 12
+
+    libload_func .Begin, 0
+    libload_func .End, 1
+
+usbdrvce:
+    libload_header "USBDRVCE", 0
     
-    .Init:
-        jp 3 * 0
-    .Cleanup:
-        jp 3 * 1
+    libload_func .Init, 0
+    libload_func .Cleanup, 1
+    libload_func .WaitForInterrupt, 5
+    libload_func .ResetDevice, 13
     
-        xor a, a      ; return z (loaded)
-        pop hl      ; pop error return
-        ret
+    xor a, a      ; return z (loaded)
+    pop hl      ; pop error return
+    ret
 
 libload_name:
     db ti.AppVarObj, "LibLoad", 0

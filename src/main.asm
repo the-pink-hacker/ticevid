@@ -1,6 +1,7 @@
 include "include/ti84pceg.inc"
 include "include/ez80.inc"
 include "include/tiformat.inc"
+include "include/macros.inc"
 format ti executable "TICEVID"
 
 ticevid:
@@ -10,23 +11,17 @@ ticevid:
     call load_libload_libraries
     jr nz, failed_to_load_libs
 
-    ld hl, .text
-    call ti.PutS
-
-    call ti.GetKey
-
-    call init_usb
+    call usb.init_usb
     
     call ti.GetKey
 
+    assert $ = .exit
+
     .exit:
-        call usb.Cleanup
+        call usbdrvce.Cleanup
         call ti.ClrScrnFull
 	call ti.HomeUp
 	jp ti.DrawStatusBar
-
-    .text:
-        db "Hello World!", 0
 
 include "src/libload.asm"
 include "src/usb.asm"
