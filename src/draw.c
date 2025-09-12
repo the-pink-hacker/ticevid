@@ -4,7 +4,7 @@
 #include "error.h"
 #include "usb.h"
 
-static uint8_t test = 0;
+static uint24_t test = 0;
 
 void ticevid_draw_init(void) {
     os_RunIndicOff();
@@ -24,12 +24,12 @@ void ticevid_draw_cleanup(void) {
 ticevid_result_t ticevid_draw_update(void) {
 
     if (ticevid_usb_connected()) {
-        ticevid_result_t result = ticevid_usb_copy_frame(0);
+        ticevid_result_t result = ticevid_usb_copy_frame(test);
+        test++;
         if (result != TICEVID_SUCCESS) {
             return result;
         }
     }
-    test++;
 
     gfx_SwapDraw();
 

@@ -73,6 +73,7 @@
                 inputsFrom = [self.packages.${system}.default];
                 packages = with pkgs; [
                     self.packages.${system}.tilp
+                    cargo-make
                     (rust-bin.selectLatestNightlyWith (toolchain:
                         toolchain.default.override {
                             extensions = [
