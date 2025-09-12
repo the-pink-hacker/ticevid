@@ -1,0 +1,10 @@
+#pragma once
+
+typedef enum {
+    TICEVID_SUCCESS = 0,
+    TICEVID_USER_EXIT,
+    TICEVID_USB_INIT_ERROR,
+    TICEVID_USB_ENABLE_ERROR,
+    TICEVID_MSD_OPEN_ERROR,
+    TICEVID_MSD_READ_ERROR,
+} ticevid_result_t;
