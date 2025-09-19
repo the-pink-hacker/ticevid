@@ -165,6 +165,9 @@ async fn main() -> anyhow::Result<()> {
             let mut output_buffer = [0; LCD_WIDTH as usize * LCD_HEIGHT as usize];
             let compressed_bytes = QoiEncoder::default().encode(&frame, &mut output_buffer)?;
 
+            //let mut output_buffer = [0; LCD_WIDTH as usize * LCD_HEIGHT as usize];
+            //let compressed_bytes = LzssEncoder.encode(&qoi_buffer[..compressed_bytes], &mut output_buffer)?;
+
             log::debug!(
                 "Compressed frame {frame_index:>frame_count_digits$}: {} bytes => {} bytes, {:>5.2}%",
                 frame.len(),
@@ -177,14 +180,15 @@ async fn main() -> anyhow::Result<()> {
                 .write_all(&output_buffer[..compressed_bytes])
                 .await?;
 
-            Ok(())
+            Ok(compressed_bytes)
         });
     }
 
+    let mut sum = 0.0;
     let mut frames = 0usize;
 
     while let Some(join) = set.join_next().await {
-        join??;
+        sum += join?? as f32;
         frames += 1;
         log::info!(
             "Encoding frames: {:>frame_count_digits$}/{} {:>5.2}%",
@@ -196,6 +200,7 @@ async fn main() -> anyhow::Result<()> {
 
     let time = encoding_start.elapsed().as_secs_f32() * 1_000.0;
     log::info!("Encoding took {:.2} MS.", time);
+    log::info!("Average size {:.0} bytes.", sum / frames as f32);
 
     Ok(())
 }

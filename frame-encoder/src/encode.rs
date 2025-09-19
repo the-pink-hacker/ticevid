@@ -1,5 +1,10 @@
 use std::iter::Peekable;
 
+const QOI_TAG_LITERAL: u8 = 0xFF;
+const QOI_TAG_DIFF: u8 = 0;
+const QOI_TAG_INDEX: u8 = 0b1000_0000;
+const QOI_TAG_RUN: u8 = 0b1100_0000;
+
 pub trait FrameEncoder {
     fn encode(&mut self, frame: &[u8], output_buffer: &mut [u8]) -> anyhow::Result<usize>;
 }
@@ -42,7 +47,7 @@ impl QoiEncoder {
     }
 
     fn index_hash(value: u8) -> u8 {
-        ((value as u16 * 3) % 64) as u8
+        value % 64
     }
 
     fn write(&mut self, value: u8, output_buffer: &mut [u8]) {
@@ -52,16 +57,16 @@ impl QoiEncoder {
 
     fn write_run(&mut self, value: u8, output_buffer: &mut [u8]) {
         assert!((0..63).contains(&value));
-        self.write(0b1100_0000 | value, output_buffer);
+        self.write(QOI_TAG_RUN | value, output_buffer);
     }
 
     fn write_literal(&mut self, value: u8, output_buffer: &mut [u8]) {
-        self.write(0xFF, output_buffer);
+        self.write(QOI_TAG_LITERAL, output_buffer);
         self.write(value, output_buffer);
     }
 
     fn write_index(&mut self, value: u8, output_buffer: &mut [u8]) {
-        self.write(Self::index_hash(value), output_buffer);
+        self.write(QOI_TAG_INDEX | Self::index_hash(value), output_buffer);
     }
 
     fn write_diff(&mut self, value: i8, output_buffer: &mut [u8]) {
@@ -71,7 +76,7 @@ impl QoiEncoder {
             1..=64 => value as u8 - 1,
         };
 
-        self.write(diff, output_buffer);
+        self.write(QOI_TAG_DIFF | diff, output_buffer);
     }
 
     fn create_run<I: Iterator<Item = u8>>(
@@ -139,6 +144,7 @@ impl QoiEncoder {
                 i8::MIN..-64 | 0 | 65..=i8::MAX => QoiControl::Invalid,
                 -64..0 | 1..=64 => {
                     pixels.next();
+                    self.index_insert(pixel);
                     self.write_diff(diff, output_buffer);
                     self.previous_pixel = pixel;
                     QoiControl::Wrote
