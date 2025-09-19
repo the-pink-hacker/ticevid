@@ -15,3 +15,12 @@ CXXFLAGS = -Wall -Wextra -Oz
 # ----------------------------
 
 include $(shell cedev-config --makefile)
+
+.PHONY: video
+video:
+	cargo run --manifest-path\
+		"frame-encoder/Cargo.toml"\
+		--release\
+		--\
+		"./resources/video/video.toml"\
+		"./bin/video.iso"

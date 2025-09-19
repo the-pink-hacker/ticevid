@@ -1,7 +1,8 @@
 bin/
-resources/raw/
-resources/video/
-resources/video.bin
+resources/video/*.mkv
+resources/video/*.mp4
+resources/video/*.mov
+resources/video/*.srt
 obj/
 src/gfx/*.c
 src/gfx/*.h
