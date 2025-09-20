@@ -1,7 +1,7 @@
 use std::iter::Peekable;
 
 const QOI_TAG_LITERAL: u8 = 0xFF;
-const QOI_TAG_DIFF: u8 = 0;
+const QOI_TAG_DIFF: u8 = 0b0000_0000;
 const QOI_TAG_INDEX: u8 = 0b1000_0000;
 const QOI_TAG_RUN: u8 = 0b1100_0000;
 

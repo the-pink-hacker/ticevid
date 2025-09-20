@@ -11,8 +11,7 @@ typedef struct usb_state usb_state_t;
 
 #include "error.h"
 #include "io.h"
-
-#define FRAME_SIZE GFX_LCD_WIDTH * GFX_LCD_HEIGHT
+#include "usb.h"
 
 struct usb_state {
     usb_device_t device;
@@ -125,9 +124,9 @@ void ticevid_usb_cleanup(void) {
     usb_Cleanup();
 }
 
-ticevid_result_t ticevid_usb_copy_frame(uint24_t frame) {
-    uint32_t blocks = FRAME_SIZE / MSD_BLOCK_SIZE;
-    uint24_t amount_read = msd_Read(&usb_state.msd, frame * blocks, blocks, *gfx_vbuffer);
+ticevid_result_t ticevid_usb_copy_chunk(uint24_t chunk, uint8_t *buffer) {
+    uint24_t blocks = TICEVID_CHUNK_BLOCKS;
+    uint24_t amount_read = msd_Read(&usb_state.msd, chunk * blocks, blocks, buffer);
 
     if (amount_read != blocks) {
         msd_Close(&usb_state.msd);

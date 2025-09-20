@@ -1,6 +1,10 @@
 #include <stdint.h>
+#include <msddrvce.h>
 
 #include "error.h"
+
+#define TICEVID_CHUNK_BLOCKS 32
+#define TICEVID_CHUNK_BYTES TICEVID_CHUNK_BLOCKS * MSD_BLOCK_SIZE
 
 // Called once at the start of the program
 void ticevid_usb_init(void);
@@ -9,8 +13,8 @@ void ticevid_usb_init(void);
 // Should be ran each frame durring connection
 ticevid_result_t ticevid_usb_attempt_connection(void);
 
-int ticevid_usb_cleanup(void);
+void ticevid_usb_cleanup(void);
 
-ticevid_result_t ticevid_usb_copy_frame(uint24_t frame);
+ticevid_result_t ticevid_usb_copy_chunk(uint24_t chunk, uint8_t *buffer);
 
 bool ticevid_usb_connected(void);
