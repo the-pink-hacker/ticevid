@@ -9,6 +9,7 @@ use std::{
 use anyhow::Context;
 use clap::Parser;
 use image::{DynamicImage, ImageFormat, ImageReader};
+use log::{debug, info, warn};
 use serde::Deserialize;
 use tokio::io::AsyncWriteExt;
 
@@ -16,6 +17,7 @@ use crate::encode::{FrameEncoder, QoiEncoder};
 
 pub mod encode;
 pub mod frame;
+pub mod serialize;
 
 pub const LCD_WIDTH: u16 = 320;
 pub const LCD_HEIGHT: u16 = 240;
@@ -127,9 +129,9 @@ async fn main() -> anyhow::Result<()> {
     let args = Args::try_parse()?;
 
     if let Err(error) = rlimit::increase_nofile_limit(MAX_FILES_OPEN) {
-        log::warn!("Failed to increase max files open to {MAX_FILES_OPEN}:\n{error}");
+        warn!("Failed to increase max files open to {MAX_FILES_OPEN}:\n{error}");
     } else {
-        log::debug!("Increased max files open to {MAX_FILES_OPEN}.");
+        debug!("Increased max files open to {MAX_FILES_OPEN}.");
     }
 
     let definition_folder = args
@@ -165,10 +167,7 @@ async fn main() -> anyhow::Result<()> {
             let mut output_buffer = [0; LCD_WIDTH as usize * LCD_HEIGHT as usize];
             let compressed_bytes = QoiEncoder::default().encode(&frame, &mut output_buffer)?;
 
-            //let mut output_buffer = [0; LCD_WIDTH as usize * LCD_HEIGHT as usize];
-            //let compressed_bytes = LzssEncoder.encode(&qoi_buffer[..compressed_bytes], &mut output_buffer)?;
-
-            log::debug!(
+            debug!(
                 "Compressed frame {frame_index:>frame_count_digits$}: {} bytes => {} bytes, {:>5.2}%",
                 frame.len(),
                 compressed_bytes,
@@ -190,7 +189,7 @@ async fn main() -> anyhow::Result<()> {
     while let Some(join) = set.join_next().await {
         sum += join?? as f32;
         frames += 1;
-        log::info!(
+        info!(
             "Encoding frames: {:>frame_count_digits$}/{} {:>5.2}%",
             frames,
             frame_count,
@@ -199,8 +198,8 @@ async fn main() -> anyhow::Result<()> {
     }
 
     let time = encoding_start.elapsed().as_secs_f32() * 1_000.0;
-    log::info!("Encoding took {:.2} MS.", time);
-    log::info!("Average size {:.0} bytes.", sum / frames as f32);
+    info!("Encoding took {:.2} MS.", time);
+    info!("Average size {:.0} bytes.", sum / frames as f32);
 
     Ok(())
 }
