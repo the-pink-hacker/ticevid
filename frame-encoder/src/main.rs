@@ -6,7 +6,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use anyhow::Context;
+use anyhow::{bail, Context};
 use clap::Parser;
 use image::{DynamicImage, ImageFormat, ImageReader};
 use log::{debug, info, warn};
@@ -22,8 +22,13 @@ pub mod serialize;
 pub const LCD_WIDTH: u16 = 320;
 pub const LCD_HEIGHT: u16 = 240;
 pub const BLOCK_SIZE: u16 = 512;
-pub const BLOCKS_PER_HEADER: u8 = 2;
+pub const BLOCKS_PER_HEADER: u8 = 4;
 pub const HEADER_SIZE: u16 = BLOCK_SIZE * BLOCKS_PER_HEADER as u16;
+pub const BLOCKS_PER_CHUNK: u8 = 96;
+pub const CHUNK_SIZE: u16 = BLOCK_SIZE * BLOCKS_PER_CHUNK as u16;
+// Smallest header is 5 bytes
+pub const MAX_FRAME_SIZE: u16 = CHUNK_SIZE - 5;
+pub const SCHEMA_VERSION: u8 = 0;
 
 pub const FRAME_FORMAT: ImageFormat = ImageFormat::Qoi;
 pub const FRAME_FORMAT_EXTENSION: &str = "qoi";
@@ -122,6 +127,200 @@ async fn encode_frame(frame: DynamicImage) -> anyhow::Result<Vec<u8>> {
         .collect::<Vec<_>>())
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+enum SectorId {
+    Start,
+    Header,
+    HeaderVideoTable,
+    HeaderVideoTableData(u8),
+    HeaderVideoTableStrings(u8),
+    HeaderCaptionTable,
+    HeaderCaptionTableData(u8),
+    HeaderCaptionTableStrings(u8),
+    HeaderFontTable,
+    HeaderFontTableData(u8),
+    HeaderEnd,
+    ChunksStart,
+    ChunkStart(u8, u16),
+    ChunkHeader(u8, u16),
+    ChunkTable(u8, u16),
+    ChunkData(u8, u16),
+    ChunkEnd(u8, u16),
+}
+
+#[repr(u8)]
+pub enum FrameType {
+    VideoKey = 0,
+    Caption = 1,
+}
+
+impl From<FrameType> for u8 {
+    fn from(value: FrameType) -> Self {
+        value as u8
+    }
+}
+
+type SerialBuilder = serialize::SerialBuilder<SectorId>;
+type SectorBuilder = serialize::SerialSectorBuilder<SectorId>;
+
+async fn serialize_video(
+    videos: &[(u32, PathBuf, VideoDefinition)],
+    mut output_buffer: impl tokio::io::AsyncWrite + tokio::io::AsyncSeek + Unpin,
+) -> anyhow::Result<()> {
+    let mut builder = SerialBuilder::default()
+        .sector_default(SectorId::Start)
+        .sector(
+            SectorId::Header,
+            SectorBuilder::default()
+                .u8(SCHEMA_VERSION)
+                // Title
+                .dynamic(SectorId::Start, SectorId::HeaderVideoTableStrings(0), 0)
+                // Video table length
+                .u8(videos.len() as u8)
+                .dynamic(SectorId::Start, SectorId::HeaderVideoTable, 0)
+                // Caption track length
+                .u8(1)
+                .u24(u24::u24::from_le_bytes([0, 0, 0]))
+                // Caption font table
+                .u8(1)
+                .dynamic(SectorId::Start, SectorId::HeaderFontTable, 0),
+        )
+        .sector(
+            SectorId::HeaderFontTable,
+            SectorBuilder::default().dynamic(SectorId::Start, SectorId::HeaderFontTableData(0), 0),
+        )
+        .sector(SectorId::HeaderFontTableData(0), SectorBuilder::default());
+
+    // Create header video table
+    let mut header_video_table_sector = SectorBuilder::default();
+
+    for video_index in 0..videos.len() {
+        header_video_table_sector = header_video_table_sector.dynamic(
+            SectorId::Start,
+            SectorId::HeaderVideoTableData(video_index as u8),
+            video_index,
+        );
+    }
+
+    builder = builder.sector(SectorId::HeaderVideoTable, header_video_table_sector);
+
+    // Create each video's metadata
+    for ((frames, _, definition), video_index) in videos.iter().zip(0..=u8::MAX) {
+        builder = builder
+            .sector(
+                SectorId::HeaderVideoTableData(video_index),
+                SectorBuilder::default()
+                    // Title
+                    .dynamic(
+                        SectorId::Start,
+                        SectorId::HeaderVideoTableStrings(video_index),
+                        0,
+                    )
+                    .dynamic(
+                        SectorId::ChunksStart,
+                        SectorId::ChunkStart(video_index, 0),
+                        0,
+                    )
+                    // Icon
+                    .u24(u24::u24::from_le_bytes([0, 0, 0]))
+                    // Total frames
+                    .u24(u24::u24::checked_from_u32(*frames).with_context(|| {
+                        format!(
+                            "There can only be u24::MAX frames: {} > {}",
+                            frames,
+                            u24::u24::MAX
+                        )
+                    })?)
+                    // FPS
+                    .u8(definition.video.fps)
+                    // Video height
+                    .u8(180),
+            )
+            .sector(
+                SectorId::HeaderVideoTableStrings(video_index),
+                SectorBuilder::default().string(definition.video.title.clone()),
+            );
+    }
+
+    // End of header
+    builder = builder
+        .sector(
+            SectorId::HeaderEnd,
+            SectorBuilder::default().fill(SectorId::Start, HEADER_SIZE.into()),
+        )
+        .sector_default(SectorId::ChunksStart);
+
+    // Chunks
+    for ((frames, frames_path, _), video_index) in videos.iter().zip(0..=u8::MAX) {
+        let mut chunk_index = 0;
+        let mut frames_in_chunk = 0;
+        // Subtract by one because of header size
+        let mut chunk_size_left = CHUNK_SIZE as usize - 1;
+        let mut chunk_table = SectorBuilder::default();
+        let mut chunk_data = SectorBuilder::default();
+        builder = builder.sector_default(SectorId::ChunkStart(video_index, chunk_index));
+
+        for frame in 0..*frames {
+            let frame_path = frames_path.join(format!("{}.video.bin", frame + 1));
+            let frame_size = tokio::fs::metadata(&frame_path)
+                .await
+                .with_context(|| format!("Frame file can't be found: {frame_path:?}"))?
+                .len() as usize;
+
+            // Subtract by 2 for smallest header size
+            if frame_size > MAX_FRAME_SIZE as usize {
+                bail!("Frame {frame} of video {video_index} is too big: {frame_size} bytes > {MAX_FRAME_SIZE} bytes");
+            }
+
+            if let Some(size_left) = chunk_size_left.checked_sub(frame_size + 4) {
+                chunk_size_left = size_left;
+
+                chunk_table = chunk_table.u8(FrameType::VideoKey).dynamic(
+                    SectorId::ChunkStart(video_index, chunk_index),
+                    SectorId::ChunkData(video_index, chunk_index),
+                    frames_in_chunk as usize,
+                );
+                chunk_data = chunk_data.external(frame_path, frame_size);
+
+                frames_in_chunk += 1;
+            } else {
+                // Chunk is full
+                // Finish chunk
+                builder = builder
+                    .sector(
+                        SectorId::ChunkHeader(video_index, chunk_index),
+                        SectorBuilder::default().u8(frames_in_chunk),
+                    )
+                    .sector(SectorId::ChunkTable(video_index, chunk_index), chunk_table)
+                    .sector(SectorId::ChunkData(video_index, chunk_index), chunk_data)
+                    .sector(
+                        SectorId::ChunkEnd(video_index, chunk_index),
+                        SectorBuilder::default().fill(
+                            SectorId::ChunkStart(video_index, chunk_index),
+                            CHUNK_SIZE as usize,
+                        ),
+                    );
+
+                if frame + 1 >= *frames {
+                    break;
+                }
+
+                // Advance to next chunk
+                chunk_index += 1;
+                frames_in_chunk = 0;
+                chunk_size_left = CHUNK_SIZE as usize - 1;
+                chunk_table = SectorBuilder::default();
+                chunk_data = SectorBuilder::default();
+                builder = builder.sector_default(SectorId::ChunkStart(video_index, chunk_index));
+            }
+        }
+    }
+
+    //panic!("{builder:#?}");
+
+    builder.build(&mut output_buffer).await
+}
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     env_logger::init();
@@ -184,7 +383,7 @@ async fn main() -> anyhow::Result<()> {
     }
 
     let mut sum = 0.0;
-    let mut frames = 0usize;
+    let mut frames = 0u32;
 
     while let Some(join) = set.join_next().await {
         sum += join?? as f32;
@@ -200,6 +399,13 @@ async fn main() -> anyhow::Result<()> {
     let time = encoding_start.elapsed().as_secs_f32() * 1_000.0;
     info!("Encoding took {:.2} MS.", time);
     info!("Average size {:.0} bytes.", sum / frames as f32);
+
+    let output_buffer = tokio::io::BufWriter::with_capacity(
+        BLOCK_SIZE as usize * 64,
+        tokio::fs::File::create(args.out).await?,
+    );
+
+    serialize_video(&[(frame_count, frames_folder, definition)], output_buffer).await?;
 
     Ok(())
 }

@@ -26,7 +26,7 @@ impl VideoDefinition {
         &self,
         definition_folder: &Path,
         frames_folder: &Path,
-    ) -> anyhow::Result<usize> {
+    ) -> anyhow::Result<u32> {
         if tokio::fs::try_exists(&frames_folder)
             .await
             .unwrap_or_default()
@@ -83,6 +83,6 @@ impl VideoDefinition {
 
         debug!("Output {frames} frames");
 
-        Ok(frames)
+        Ok(frames as u32)
     }
 }

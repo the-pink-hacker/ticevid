@@ -125,7 +125,7 @@ impl<S: Hash + Eq + Clone + std::fmt::Debug> SerialTracker<S> {
             .with_context(|| format!("Sector does not exist: {to_sector:#?}"))?
             .fields;
 
-        if fields.len() <= to_index {
+        if fields.len() <= to_index && to_index != 0 {
             bail!(
                 "Can't index into sector; not enough fields. Sector: {:#?}, Length: {}, Index: {}",
                 to_sector,
@@ -240,11 +240,11 @@ impl<S: Hash + Eq + Clone + std::fmt::Debug> SerialSectorBuilder<S> {
         self.field(SerialField::Fill { origin, fill })
     }
 
-    pub async fn file(self, path: impl Into<PathBuf>) -> anyhow::Result<Self> {
-        let path = path.into();
-        let size = tokio::fs::metadata(&path).await?.len() as usize;
-
-        Ok(self.field(SerialField::External { path, size }))
+    pub fn external(self, path: impl Into<PathBuf>, size: usize) -> Self {
+        self.field(SerialField::External {
+            path: path.into(),
+            size,
+        })
     }
 
     async fn build(
@@ -255,6 +255,7 @@ impl<S: Hash + Eq + Clone + std::fmt::Debug> SerialSectorBuilder<S> {
     ) -> anyhow::Result<()> {
         for field in &self.fields {
             field.build(buffer, sectors, tracker).await?;
+            debug!("Build sector: {field:#?}");
         }
 
         Ok(())
