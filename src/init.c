@@ -1,10 +1,17 @@
+#include "error.h"
 #include "usb.h"
 #include "draw.h"
 
-int ticevid_init(void) {
-    ticevid_draw_init();
+ticevid_result_t ticevid_init(void) {
+    ticevid_result_t result = ticevid_draw_init();
+
+    if (result != TICEVID_SUCCESS) {
+        return result;
+    }
+
     ticevid_usb_init();
-    return 0;
+
+    return TICEVID_SUCCESS;
 }
 
 void ticevid_cleanup(void) {

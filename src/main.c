@@ -22,6 +22,12 @@ static int ticevid_handle_errors(ticevid_result_t result) {
         case TICEVID_MSD_READ_ERROR:
             ticevid_io_println("USB MSD read failure.");
             break;
+        case TICEVID_VIDEO_HEADER_MEMORY:
+            ticevid_io_println("Insufficient memory for video header.");
+            break;
+        case TICEVID_VIDEO_CHUNK_MEMORY:
+            ticevid_io_println("Insufficient memory for video chunk.");
+            break;
     }
 
     while (!os_GetKey());
@@ -29,9 +35,14 @@ static int ticevid_handle_errors(ticevid_result_t result) {
 }
 
 int main(void) {
-    ticevid_init();
+    ticevid_result_t result = ticevid_init();
 
-    ticevid_result_t result = ticevid_update_start();
+    if (result != TICEVID_SUCCESS) {
+        ticevid_cleanup();
+        return ticevid_handle_errors(result);
+    }
+
+    result = ticevid_update_start();
 
     ticevid_cleanup();
 

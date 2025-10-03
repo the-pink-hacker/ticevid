@@ -3,9 +3,6 @@
 
 #include "error.h"
 
-#define TICEVID_CHUNK_BLOCKS 32
-#define TICEVID_CHUNK_BYTES TICEVID_CHUNK_BLOCKS * MSD_BLOCK_SIZE
-
 // Called once at the start of the program
 void ticevid_usb_init(void);
 
@@ -15,6 +12,6 @@ ticevid_result_t ticevid_usb_attempt_connection(void);
 
 void ticevid_usb_cleanup(void);
 
-ticevid_result_t ticevid_usb_copy_chunk(uint24_t chunk, uint8_t *buffer);
+ticevid_result_t ticevid_usb_copy_chunk(uint24_t chunk, uint8_t blocks, uint8_t *buffer);
 
 bool ticevid_usb_connected(void);

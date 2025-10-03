@@ -124,8 +124,7 @@ void ticevid_usb_cleanup(void) {
     usb_Cleanup();
 }
 
-ticevid_result_t ticevid_usb_copy_chunk(uint24_t chunk, uint8_t *buffer) {
-    uint24_t blocks = TICEVID_CHUNK_BLOCKS;
+ticevid_result_t ticevid_usb_copy_chunk(uint24_t chunk, uint8_t blocks, uint8_t *buffer) {
     uint24_t amount_read = msd_Read(&usb_state.msd, chunk * blocks, blocks, buffer);
 
     if (amount_read != blocks) {

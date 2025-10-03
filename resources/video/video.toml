@@ -1,7 +1,7 @@
 [video]
 title = "Bee Movie"
 source = "video.mkv"
-#durration.minutes = 1
+durration.minutes = 1
 fps = 24
 
 [captions.en_us]

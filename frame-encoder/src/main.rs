@@ -141,11 +141,13 @@ enum SectorId {
     HeaderFontTableData(u8),
     HeaderEnd,
     ChunksStart,
+    ChunkFirst(u8),
     ChunkStart(u8, u16),
     ChunkHeader(u8, u16),
     ChunkTable(u8, u16),
     ChunkData(u8, u16),
     ChunkEnd(u8, u16),
+    ChunkLast(u8),
 }
 
 #[repr(u8)]
@@ -216,9 +218,16 @@ async fn serialize_video(
                         SectorId::HeaderVideoTableStrings(video_index),
                         0,
                     )
-                    .dynamic(
+                    // First chunk
+                    .dynamic_chunk(
                         SectorId::ChunksStart,
                         SectorId::ChunkStart(video_index, 0),
+                        0,
+                    )
+                    // Number of chunks
+                    .dynamic_chunk(
+                        SectorId::ChunkFirst(video_index),
+                        SectorId::ChunkLast(video_index),
                         0,
                     )
                     // Icon
@@ -258,7 +267,9 @@ async fn serialize_video(
         let mut chunk_size_left = CHUNK_SIZE as usize - 1;
         let mut chunk_table = SectorBuilder::default();
         let mut chunk_data = SectorBuilder::default();
-        builder = builder.sector_default(SectorId::ChunkStart(video_index, chunk_index));
+        builder = builder
+            .sector_default(SectorId::ChunkFirst(video_index))
+            .sector_default(SectorId::ChunkStart(video_index, chunk_index));
 
         for frame in 0..*frames {
             let frame_path = frames_path.join(format!("{}.video.bin", frame + 1));
@@ -272,7 +283,9 @@ async fn serialize_video(
                 bail!("Frame {frame} of video {video_index} is too big: {frame_size} bytes > {MAX_FRAME_SIZE} bytes");
             }
 
-            if let Some(size_left) = chunk_size_left.checked_sub(frame_size + 4) {
+            let checked_size_left = chunk_size_left.checked_sub(frame_size + 4);
+
+            if let Some(size_left) = checked_size_left {
                 chunk_size_left = size_left;
 
                 chunk_table = chunk_table.u8(FrameType::VideoKey).dynamic(
@@ -283,7 +296,12 @@ async fn serialize_video(
                 chunk_data = chunk_data.external(frame_path, frame_size);
 
                 frames_in_chunk += 1;
-            } else {
+            }
+
+            let is_last_frame = frame + 1 == *frames;
+
+            // If end of chunk
+            if checked_size_left.is_none() || is_last_frame {
                 // Chunk is full
                 // Finish chunk
                 builder = builder
@@ -301,7 +319,8 @@ async fn serialize_video(
                         ),
                     );
 
-                if frame + 1 >= *frames {
+                if is_last_frame {
+                    builder = builder.sector_default(SectorId::ChunkLast(video_index));
                     break;
                 }
 
@@ -311,6 +330,7 @@ async fn serialize_video(
                 chunk_size_left = CHUNK_SIZE as usize - 1;
                 chunk_table = SectorBuilder::default();
                 chunk_data = SectorBuilder::default();
+
                 builder = builder.sector_default(SectorId::ChunkStart(video_index, chunk_index));
             }
         }
@@ -367,7 +387,7 @@ async fn main() -> anyhow::Result<()> {
             let compressed_bytes = QoiEncoder::default().encode(&frame, &mut output_buffer)?;
 
             debug!(
-                "Compressed frame {frame_index:>frame_count_digits$}: {} bytes => {} bytes, {:>5.2}%",
+                "Compressed frame {frame_index:>frame_count_digits$}: {} bytes => {} bytes, {:>6.2}%",
                 frame.len(),
                 compressed_bytes,
                 (compressed_bytes as f32 / frame.len() as f32) * 100.0,
@@ -388,12 +408,15 @@ async fn main() -> anyhow::Result<()> {
     while let Some(join) = set.join_next().await {
         sum += join?? as f32;
         frames += 1;
-        info!(
-            "Encoding frames: {:>frame_count_digits$}/{} {:>5.2}%",
-            frames,
-            frame_count,
-            (frames as f32 / frame_count as f32) * 100.0
-        );
+
+        if frames.is_multiple_of(24) || frames == frame_count {
+            info!(
+                "Encoding frames: {:>frame_count_digits$}/{} {:>6.2}%",
+                frames,
+                frame_count,
+                (frames as f32 / frame_count as f32) * 100.0
+            );
+        }
     }
 
     let time = encoding_start.elapsed().as_secs_f32() * 1_000.0;

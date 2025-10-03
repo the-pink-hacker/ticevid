@@ -49,6 +49,7 @@ enum SerialField<S: Hash + Eq> {
         sector: S,
         /// Index from begining of first sector
         index: usize,
+        scale: usize,
     },
     /// File to be loaded on build
     External {
@@ -87,8 +88,9 @@ impl<S: Hash + Eq + Clone + std::fmt::Debug> SerialBuilder<S> {
     ) -> anyhow::Result<()> {
         let tracker = SerialTracker::new(&self.sectors).await?;
 
-        for (_, sector) in &self.sectors {
+        for (sector_id, sector) in &self.sectors {
             sector.build(buffer, &self.sectors, &tracker).await?;
+            debug!("Built sector: {sector_id:#?}");
         }
 
         buffer.flush().await?;
@@ -233,6 +235,16 @@ impl<S: Hash + Eq + Clone + std::fmt::Debug> SerialSectorBuilder<S> {
             origin,
             sector,
             index,
+            scale: 1,
+        })
+    }
+
+    pub fn dynamic_chunk(self, origin: S, sector: S, index: usize) -> Self {
+        self.field(SerialField::Dynamic {
+            origin,
+            sector,
+            index,
+            scale: crate::CHUNK_SIZE as usize,
         })
     }
 
@@ -255,7 +267,6 @@ impl<S: Hash + Eq + Clone + std::fmt::Debug> SerialSectorBuilder<S> {
     ) -> anyhow::Result<()> {
         for field in &self.fields {
             field.build(buffer, sectors, tracker).await?;
-            debug!("Build sector: {field:#?}");
         }
 
         Ok(())
@@ -271,6 +282,7 @@ impl<S: Hash + Eq + Clone + std::fmt::Debug> SerialField<S> {
                 sector: _,
                 index: _,
                 origin: _,
+                scale: _,
             }
             | Self::U24(_) => Ok(3),
             Self::U8(_) => Ok(1),
@@ -300,16 +312,28 @@ impl<S: Hash + Eq + Clone + std::fmt::Debug> SerialField<S> {
                 sector,
                 index,
                 origin,
+                scale,
             } => {
                 let pointer =
                     tracker.offset_field_from_sector(origin, sector, *index, sectors, tracker)?;
-                let pointer = u24::checked_from_u32(pointer as u32).with_context(|| {
-                    format!(
-                        "Pointer exceeds 24-bit limit: {} bytes > {} bytes",
+
+                if !pointer.is_multiple_of(*scale) {
+                    bail!(
+                        "Dynamic pointer isn't aligned to scale: {} % {} != 0, off by {}",
                         pointer,
-                        u24::MAX
-                    )
-                })?;
+                        scale,
+                        pointer % scale
+                    );
+                }
+
+                let pointer =
+                    u24::checked_from_u32((pointer / scale) as u32).with_context(|| {
+                        format!(
+                            "Pointer exceeds 24-bit limit: {} bytes > {} bytes",
+                            pointer,
+                            u24::MAX
+                        )
+                    })?;
                 buffer.write_all(&pointer.to_le_bytes()).await?;
             }
             Self::U8(value) => {
