@@ -35,8 +35,15 @@ typedef struct ticevid_video_header {
     ticevid_font_data_t **font_table;
 } ticevid_video_header_t;
 
+// This buffer is always the max size of the header (TICEVID_HEADER_SIZE)
+extern ticevid_video_header_t *ticevid_video_header;
+
 ticevid_result_t ticevid_video_init(void);
 
 void ticevid_video_cleanup(void);
 
-ticevid_result_t ticevid_video_update(void);
+ticevid_result_t ticevid_video_load_header(void);
+
+ticevid_result_t ticevid_video_play_update(void);
+
+ticevid_result_t ticevid_video_play_draw(void);

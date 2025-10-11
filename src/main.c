@@ -28,6 +28,15 @@ static int ticevid_handle_errors(ticevid_result_t result) {
         case TICEVID_VIDEO_CHUNK_MEMORY:
             ticevid_io_println("Insufficient memory for video chunk.");
             break;
+        case TICEVID_VIDEO_HEADER_INVALID:
+            ticevid_io_println("Failed to parse video header.");
+            break;
+        case TICEVID_FONT_MISSING:
+            ticevid_io_println("Selected font is missing from system.");
+            break;
+        case TICEVID_FONT_INVALID:
+            ticevid_io_println("Selected font is invalid.");
+            break;
     }
 
     while (!os_GetKey());

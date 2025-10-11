@@ -1,19 +1,17 @@
 #include "draw.h"
 #include "error.h"
 #include "io.h"
-#include "usb.h"
+#include "ui.h"
 
 static ticevid_result_t ticevid_update_loop(void) {
     if (ticevid_io_pressing_exit()) {
         return TICEVID_USER_EXIT;
     }
 
-    if (!ticevid_usb_connected()) {
-        ticevid_result_t result = ticevid_usb_attempt_connection();
+    ticevid_result_t result = ticevid_ui_update();
 
-        if (result != TICEVID_SUCCESS) {
-            return result;
-        }
+    if (result != TICEVID_SUCCESS) {
+        return result;
     }
 
     return ticevid_draw_update();

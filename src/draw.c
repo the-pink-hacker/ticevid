@@ -1,8 +1,10 @@
 #include <ti/screen.h>
 #include <graphx.h>
+#include <fontlibc.h>
 
 #include "error.h"
 #include "usb.h"
+#include "ui.h"
 #include "video.h"
 
 ticevid_result_t ticevid_draw_init(void) {
@@ -24,12 +26,40 @@ void ticevid_draw_cleanup(void) {
 }
 
 ticevid_result_t ticevid_draw_update(void) {
-    if (ticevid_usb_connected()) {
-        ticevid_result_t result = ticevid_video_update();
+    ticevid_result_t result;
 
-        if (result != TICEVID_SUCCESS) {
-            return result;
-        }
+    switch (ui_state) {
+        case TICEVID_UI_MAIN:
+            gfx_FillScreen(0xFF);
+            fontlib_ClearWindow();
+            fontlib_HomeUp();
+            fontlib_DrawString("TICEVID: The USB Video Player\nPress enter to connect to USB device.");
+            break;
+        case TICEVID_UI_LOADING_VIDEO_SELECT:
+        case TICEVID_UI_LOADING_VIDEO:
+            gfx_FillScreen(0xFF);
+            fontlib_ClearWindow();
+            fontlib_HomeUp();
+            fontlib_DrawString("Loading...");
+            break;
+        case TICEVID_UI_VIDEO_SELECT:
+            gfx_FillScreen(0xFF);
+            fontlib_ClearWindow();
+            fontlib_HomeUp();
+            fontlib_DrawString("Select video.");
+            fontlib_Newline();
+            fontlib_DrawString(ticevid_video_header->title);
+            fontlib_Newline();
+            fontlib_DrawString("Done.");
+            break;
+        case TICEVID_UI_PLAYING:
+            result = ticevid_video_play_draw();
+
+            if (result != TICEVID_SUCCESS) {
+                return result;
+            }
+
+            break;
     }
 
     gfx_SwapDraw();
