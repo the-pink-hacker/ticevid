@@ -1,0 +1,23 @@
+[package]
+name = "ticevid-encoder"
+version = "0.1.0"
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow.workspace = true
+clap = { workspace = true, features = ["derive"] }
+env_logger.workspace = true
+image = { workspace = true, features = ["qoi"] }
+indexmap.workspace = true
+log = { workspace = true, features = ["max_level_trace", "release_max_level_info", "std"] }
+lzss = { workspace = true, features = ["std"] }
+rlimit.workspace = true
+rust_ffmpeg.workspace = true
+serde = { workspace = true, features = ["derive"] }
+tokio = { workspace = true, features = ["fs", "io-util", "macros", "rt-multi-thread"] }
+toml.workspace = true
+u24.workspace = true

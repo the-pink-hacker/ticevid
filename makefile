@@ -18,8 +18,8 @@ include $(shell cedev-config --makefile)
 
 .PHONY: video
 video:
-	cargo run --manifest-path\
-		"frame-encoder/Cargo.toml"\
+	cargo run\
+		--bin ticevid-encoder\
 		--release\
 		--\
 		"./resources/video/video.toml"\

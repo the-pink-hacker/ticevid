@@ -8,7 +8,6 @@
 #include "video.h"
 
 ticevid_result_t ticevid_draw_init(void) {
-    os_RunIndicOff();
     os_ClrLCDFull();
     gfx_Begin();
     gfx_ZeroScreen();
