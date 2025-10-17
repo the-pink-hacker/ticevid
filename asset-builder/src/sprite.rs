@@ -7,7 +7,7 @@ use std::{
 use anyhow::{Context, bail};
 use image::Rgb;
 use imageproc::geometric_transformations::Interpolation;
-use linked_hash_map::LinkedHashMap;
+use indexmap::IndexMap;
 use serde::Deserialize;
 use serde_valid::Validate;
 
@@ -58,7 +58,7 @@ pub enum OutputType {
 
 #[derive(Debug, Deserialize)]
 pub struct SpriteMetadata {
-    pub sprites: LinkedHashMap<String, Sprite>,
+    pub sprites: IndexMap<String, Sprite>,
     pub rotation: Option<f32>,
     pub output_type: Option<OutputType>,
     pub color_space: Option<ColorSpace>,
@@ -67,7 +67,7 @@ pub struct SpriteMetadata {
 
 pub fn load_sprite_metadata(
     sprite_file: &PathBuf,
-) -> anyhow::Result<LinkedHashMap<String, SpriteMetadata>> {
+) -> anyhow::Result<IndexMap<String, SpriteMetadata>> {
     let file = fs::read_to_string(sprite_file)?;
     Ok(toml::from_str(&file)?)
 }

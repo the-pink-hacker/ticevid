@@ -12,7 +12,7 @@ anyhow.workspace = true
 clap = { workspace = true, features = ["derive"] }
 image = { workspace = true, features = ["png"] }
 imageproc.workspace = true
-linked-hash-map = { version = "0.5.6", features = ["serde", "serde_impl"] }
+indexmap.workspace = true
 serde = { workspace = true, features = ["derive"] }
 serde_valid = { workspace = true, features = ["serde_toml", "toml"] }
 toml.workspace = true
