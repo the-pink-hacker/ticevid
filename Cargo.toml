@@ -15,17 +15,17 @@ unsafe_code = "deny"
 
 [workspace.dependencies]
 anyhow = "1.0.100"
-clap = "4.5.48"
+clap = "4.5.53"
 env_logger = "0.11.8"
-image = { version = "0.25.8", default-features = false }
+image = { version = "0.25.9", default-features = false }
 imageproc = { version = "0.25.0", default-features = false }
-indexmap = "2.11.4"
-log = "0.4.28"
+indexmap = "2.12.1"
+log = "0.4.29"
 lzss = { version = "0.9.1", default-features = false }
 rlimit = "0.10.2"
 rust_ffmpeg = "1.0.0"
 serde = "1.0.228"
-serde_valid = "1.0.5"
-tokio = "1.47.1"
+serseg = { git = "https://github.com/the-pink-hacker/tice-rust", version = "0.1.0" }
+tokio = "1.48.0"
 toml = "0.9.8"
-u24 = "0.4.0"
+u24 = "0.5.0"

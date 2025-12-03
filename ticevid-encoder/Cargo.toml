@@ -18,6 +18,7 @@ lzss = { workspace = true, features = ["std"] }
 rlimit.workspace = true
 rust_ffmpeg.workspace = true
 serde = { workspace = true, features = ["derive"] }
+serseg.workspace = true
 tokio = { workspace = true, features = ["fs", "io-util", "macros", "rt-multi-thread"] }
 toml.workspace = true
 u24.workspace = true

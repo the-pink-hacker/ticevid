@@ -6,7 +6,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use anyhow::{bail, Context};
+use anyhow::{Context, bail};
 use clap::Parser;
 use image::{DynamicImage, ImageFormat, ImageReader};
 use log::{debug, info, warn};
@@ -17,7 +17,6 @@ use crate::encode::{FrameEncoder, QoiEncoder};
 
 pub mod encode;
 pub mod frame;
-pub mod serialize;
 
 pub const LCD_WIDTH: u16 = 320;
 pub const LCD_HEIGHT: u16 = 240;
@@ -162,8 +161,8 @@ impl From<FrameType> for u8 {
     }
 }
 
-type SerialBuilder = serialize::SerialBuilder<SectorId>;
-type SectorBuilder = serialize::SerialSectorBuilder<SectorId>;
+type SerialBuilder = serseg::prelude::SerialBuilder<SectorId>;
+type SectorBuilder = serseg::prelude::SerialSectorBuilder<SectorId>;
 
 async fn serialize_video(
     videos: &[(u32, PathBuf, VideoDefinition)],
@@ -176,20 +175,24 @@ async fn serialize_video(
             SectorBuilder::default()
                 .u8(SCHEMA_VERSION)
                 // Title
-                .dynamic(SectorId::Start, SectorId::HeaderVideoTableStrings(0), 0)
+                .dynamic_u24(SectorId::Start, SectorId::HeaderVideoTableStrings(0), 0)
                 // Video table length
                 .u8(videos.len() as u8)
-                .dynamic(SectorId::Start, SectorId::HeaderVideoTable, 0)
+                .dynamic_u24(SectorId::Start, SectorId::HeaderVideoTable, 0)
                 // Caption track length
                 .u8(1)
                 .u24(u24::u24::from_le_bytes([0, 0, 0]))
                 // Caption font table
                 .u8(1)
-                .dynamic(SectorId::Start, SectorId::HeaderFontTable, 0),
+                .dynamic_u24(SectorId::Start, SectorId::HeaderFontTable, 0),
         )
         .sector(
             SectorId::HeaderFontTable,
-            SectorBuilder::default().dynamic(SectorId::Start, SectorId::HeaderFontTableData(0), 0),
+            SectorBuilder::default().dynamic_u24(
+                SectorId::Start,
+                SectorId::HeaderFontTableData(0),
+                0,
+            ),
         )
         .sector(SectorId::HeaderFontTableData(0), SectorBuilder::default());
 
@@ -197,7 +200,7 @@ async fn serialize_video(
     let mut header_video_table_sector = SectorBuilder::default();
 
     for video_index in 0..videos.len() {
-        header_video_table_sector = header_video_table_sector.dynamic(
+        header_video_table_sector = header_video_table_sector.dynamic_u24(
             SectorId::Start,
             SectorId::HeaderVideoTableData(video_index as u8),
             video_index,
@@ -213,22 +216,24 @@ async fn serialize_video(
                 SectorId::HeaderVideoTableData(video_index),
                 SectorBuilder::default()
                     // Title
-                    .dynamic(
+                    .dynamic_u24(
                         SectorId::Start,
                         SectorId::HeaderVideoTableStrings(video_index),
                         0,
                     )
                     // First chunk
-                    .dynamic_chunk(
+                    .dynamic_u24_chunk(
                         SectorId::ChunksStart,
                         SectorId::ChunkStart(video_index, 0),
                         0,
+                        CHUNK_SIZE as usize,
                     )
                     // Number of chunks
-                    .dynamic_chunk(
+                    .dynamic_u24_chunk(
                         SectorId::ChunkFirst(video_index),
                         SectorId::ChunkLast(video_index),
                         0,
+                        CHUNK_SIZE as usize,
                     )
                     // Icon
                     .u24(u24::u24::from_le_bytes([0, 0, 0]))
@@ -280,7 +285,9 @@ async fn serialize_video(
 
             // Subtract by 2 for smallest header size
             if frame_size > MAX_FRAME_SIZE as usize {
-                bail!("Frame {frame} of video {video_index} is too big: {frame_size} bytes > {MAX_FRAME_SIZE} bytes");
+                bail!(
+                    "Frame {frame} of video {video_index} is too big: {frame_size} bytes > {MAX_FRAME_SIZE} bytes"
+                );
             }
 
             let checked_size_left = chunk_size_left.checked_sub(frame_size + 4);
@@ -288,7 +295,7 @@ async fn serialize_video(
             if let Some(size_left) = checked_size_left {
                 chunk_size_left = size_left;
 
-                chunk_table = chunk_table.u8(FrameType::VideoKey).dynamic(
+                chunk_table = chunk_table.u8(FrameType::VideoKey).dynamic_u24(
                     SectorId::ChunkStart(video_index, chunk_index),
                     SectorId::ChunkData(video_index, chunk_index),
                     frames_in_chunk as usize,
