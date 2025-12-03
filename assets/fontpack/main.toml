@@ -1,0 +1,9 @@
+[pack.metadata]
+author = "ThePinkHacker"
+pseudocopyright = "2025"
+version = "0.1.0"
+
+[pack]
+fonts = [
+    "../font/main"
+]

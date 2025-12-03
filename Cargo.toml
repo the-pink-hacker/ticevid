@@ -2,7 +2,6 @@
 resolver = "3"
 members = [
     "ticevid-encoder",
-    "asset-builder",
 ]
 
 [workspace.package]

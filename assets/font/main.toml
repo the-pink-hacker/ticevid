@@ -1,0 +1,386 @@
+[font]
+height = 16
+weight = "normal"
+#x_height = 0
+baseline_height = 14
+cap_height = 1
+
+[[font.glyphs]]
+index = " "
+source = "main/10x16/space"
+
+[[font.glyphs]]
+index = "!"
+source = "main/6x16/exclamation_mark"
+
+[[font.glyphs]]
+index = "\""
+source = "main/10x16/quote_double"
+
+[[font.glyphs]]
+index = "#"
+source = "main/12x16/hash"
+
+[[font.glyphs]]
+index = "$"
+source = "main/12x16/dollar"
+
+[[font.glyphs]]
+index = "%"
+source = "main/10x16/percent"
+
+[[font.glyphs]]
+index = "&"
+source = "main/10x16/ampersand"
+
+[[font.glyphs]]
+index = "'"
+source = "main/6x16/quote_single"
+
+[[font.glyphs]]
+index = "("
+source = "main/6x16/parenthese_open"
+
+[[font.glyphs]]
+index = ")"
+source = "main/6x16/parenthese_close"
+
+[[font.glyphs]]
+index = "*"
+source = "main/10x16/asterisk"
+
+[[font.glyphs]]
+index = "+"
+source = "main/10x16/plus"
+
+[[font.glyphs]]
+index = ","
+source = "main/6x16/comma"
+
+[[font.glyphs]]
+index = "-"
+source = "main/10x16/dash"
+
+[[font.glyphs]]
+index = "."
+source = "main/6x16/period"
+
+[[font.glyphs]]
+index = "/"
+source = "main/10x16/slash_forward"
+
+[[font.glyphs]]
+index = "0"
+source = "main/10x16/0"
+
+[[font.glyphs]]
+index = "1"
+source = "main/10x16/1"
+
+[[font.glyphs]]
+index = "2"
+source = "main/10x16/2"
+
+[[font.glyphs]]
+index = "3"
+source = "main/10x16/3"
+
+[[font.glyphs]]
+index = "4"
+source = "main/10x16/4"
+
+[[font.glyphs]]
+index = "5"
+source = "main/10x16/5"
+
+[[font.glyphs]]
+index = "6"
+source = "main/10x16/6"
+
+[[font.glyphs]]
+index = "7"
+source = "main/10x16/7"
+
+[[font.glyphs]]
+index = "8"
+source = "main/10x16/8"
+
+[[font.glyphs]]
+index = "9"
+source = "main/10x16/9"
+
+[[font.glyphs]]
+index = ":"
+source = "main/6x16/colon"
+
+[[font.glyphs]]
+index = ";"
+source = "main/6x16/semicolon"
+
+[[font.glyphs]]
+index = "<"
+source = "main/12x16/less_than"
+
+[[font.glyphs]]
+index = "="
+source = "main/10x16/equal"
+
+[[font.glyphs]]
+index = ">"
+source = "main/12x16/greater_than"
+
+[[font.glyphs]]
+index = "?"
+source = "main/10x16/question_mark"
+
+[[font.glyphs]]
+index = "@"
+source = "main/12x16/at"
+
+[[font.glyphs]]
+index = "A"
+source = "main/10x16/uppercase_a"
+
+[[font.glyphs]]
+index = "B"
+source = "main/10x16/uppercase_b"
+
+[[font.glyphs]]
+index = "C"
+source = "main/10x16/uppercase_c"
+
+[[font.glyphs]]
+index = "D"
+source = "main/10x16/uppercase_d"
+
+[[font.glyphs]]
+index = "E"
+source = "main/10x16/uppercase_e"
+
+[[font.glyphs]]
+index = "F"
+source = "main/10x16/uppercase_f"
+
+[[font.glyphs]]
+index = "G"
+source = "main/10x16/uppercase_g"
+
+[[font.glyphs]]
+index = "H"
+source = "main/10x16/uppercase_h"
+
+[[font.glyphs]]
+index = "I"
+source = "main/10x16/uppercase_i"
+
+[[font.glyphs]]
+index = "J"
+source = "main/10x16/uppercase_j"
+
+[[font.glyphs]]
+index = "K"
+source = "main/10x16/uppercase_k"
+
+[[font.glyphs]]
+index = "L"
+source = "main/10x16/uppercase_l"
+
+[[font.glyphs]]
+index = "M"
+source = "main/12x16/uppercase_m"
+
+[[font.glyphs]]
+index = "N"
+source = "main/10x16/uppercase_n"
+
+[[font.glyphs]]
+index = "O"
+source = "main/12x16/uppercase_o"
+
+[[font.glyphs]]
+index = "P"
+source = "main/10x16/uppercase_p"
+
+[[font.glyphs]]
+index = "Q"
+source = "main/12x16/uppercase_q"
+
+[[font.glyphs]]
+index = "R"
+source = "main/10x16/uppercase_r"
+
+[[font.glyphs]]
+index = "S"
+source = "main/10x16/uppercase_s"
+
+[[font.glyphs]]
+index = "T"
+source = "main/10x16/uppercase_t"
+
+[[font.glyphs]]
+index = "U"
+source = "main/12x16/uppercase_u"
+
+[[font.glyphs]]
+index = "V"
+source = "main/12x16/uppercase_v"
+
+[[font.glyphs]]
+index = "W"
+source = "main/12x16/uppercase_w"
+
+[[font.glyphs]]
+index = "X"
+source = "main/12x16/uppercase_x"
+
+[[font.glyphs]]
+index = "Y"
+source = "main/12x16/uppercase_y"
+
+[[font.glyphs]]
+index = "Z"
+source = "main/10x16/uppercase_z"
+
+[[font.glyphs]]
+index = "["
+source = "main/6x16/bracket_open"
+
+[[font.glyphs]]
+index = "\\"
+source = "main/10x16/9"
+
+[[font.glyphs]]
+index = "]"
+source = "main/6x16/bracket_close"
+
+[[font.glyphs]]
+index = "^"
+source = "main/10x16/caret"
+
+[[font.glyphs]]
+index = "_"
+source = "main/10x16/underscore"
+
+[[font.glyphs]]
+index = "`"
+source = "main/6x16/grave"
+
+[[font.glyphs]]
+index = "a"
+source = "main/10x16/lowercase_a"
+
+[[font.glyphs]]
+index = "b"
+source = "main/10x16/lowercase_b"
+
+[[font.glyphs]]
+index = "c"
+source = "main/10x16/lowercase_c"
+
+[[font.glyphs]]
+index = "d"
+source = "main/10x16/lowercase_d"
+
+[[font.glyphs]]
+index = "e"
+source = "main/10x16/lowercase_e"
+
+[[font.glyphs]]
+index = "f"
+source = "main/10x16/lowercase_f"
+
+[[font.glyphs]]
+index = "g"
+source = "main/10x16/lowercase_g"
+
+[[font.glyphs]]
+index = "h"
+source = "main/10x16/lowercase_h"
+
+[[font.glyphs]]
+index = "i"
+source = "main/6x16/lowercase_i"
+
+[[font.glyphs]]
+index = "j"
+source = "main/6x16/lowercase_j"
+
+[[font.glyphs]]
+index = "k"
+source = "main/10x16/lowercase_k"
+
+[[font.glyphs]]
+index = "l"
+source = "main/6x16/lowercase_l"
+
+[[font.glyphs]]
+index = "m"
+source = "main/12x16/lowercase_m"
+
+[[font.glyphs]]
+index = "n"
+source = "main/10x16/lowercase_n"
+
+[[font.glyphs]]
+index = "o"
+source = "main/10x16/lowercase_o"
+
+[[font.glyphs]]
+index = "p"
+source = "main/10x16/lowercase_p"
+
+[[font.glyphs]]
+index = "q"
+source = "main/10x16/lowercase_q"
+
+[[font.glyphs]]
+index = "r"
+source = "main/10x16/lowercase_r"
+
+[[font.glyphs]]
+index = "s"
+source = "main/10x16/lowercase_s"
+
+[[font.glyphs]]
+index = "t"
+source = "main/10x16/lowercase_t"
+
+[[font.glyphs]]
+index = "u"
+source = "main/10x16/lowercase_u"
+
+[[font.glyphs]]
+index = "v"
+source = "main/10x16/lowercase_v"
+
+[[font.glyphs]]
+index = "w"
+source = "main/12x16/lowercase_w"
+
+[[font.glyphs]]
+index = "x"
+source = "main/10x16/lowercase_x"
+
+[[font.glyphs]]
+index = "y"
+source = "main/10x16/lowercase_y"
+
+[[font.glyphs]]
+index = "z"
+source = "main/10x16/lowercase_y"
+
+[[font.glyphs]]
+index = "{"
+source = "main/6x16/brace_open"
+
+[[font.glyphs]]
+index = "|"
+source = "main/6x16/pipe"
+
+[[font.glyphs]]
+index = "}"
+source = "main/6x16/brace_close"
+
+[[font.glyphs]]
+index = "~"
+source = "main/10x16/tilda"
