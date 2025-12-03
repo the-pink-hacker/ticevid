@@ -1,89 +1,57 @@
 {
-    description = "The Sans Undertale boss fight for the TI-84+ CE";
+    description = "A video player for the TI-84 Plus CE";
     inputs = {
-        nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
-        toolchain = {
-            url = "github:myclevorname/flake";
-            inputs = {
-                nixpkgs.follows = "nixpkgs";
-            };
-        };
+        nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+        flake-utils.url = "github:numtide/flake-utils";
         rust-overlay = {
             url = "github:oxalica/rust-overlay";
             inputs.nixpkgs.follows = "nixpkgs";
+        };
+        tice-rust = {
+            url = "github:the-pink-hacker/tice-rust";
+            inputs = {
+                nixpkgs.follows = "nixpkgs";
+                rust-overlay.follows = "rust-overlay";
+                flake-utils.follows = "flake-utils";
+            };
         };
     };
     outputs = {
         self,
         nixpkgs,
-        toolchain,
         rust-overlay,
+        tice-rust,
+        flake-utils,
         ...
-    }: let
-      inherit (nixpkgs) lib;
-      systems = [
-          "x86_64-linux"
-          "x86_64-darwin"
-      ];
-      pkgsFor = lib.genAttrs systems (system:
-          import nixpkgs {
-              localSystem.system = system;
-              overlays = [(import rust-overlay)];
-              config.allowUnfree = true;
-          });
-    in {
-        packages = lib.mapAttrs (system: pkgs: {
-            default = toolchain.packages.x86_64-linux.mkDerivation {
-                pname = "sans-ti";
-                version = "0.0.1";
-                src = self;
+    }:
+        flake-utils.lib.eachSystem [
+            "x86_64-linux"
+            "aarch64-linux"
+            "x86_64-darwin"
+            "aarch64-darwin"
+        ] (system: let
+            pkgs = import nixpkgs {
+                localSystem.system = system;
+                overlays = [(import rust-overlay) tice-rust.overlays.${system}.default];
+                config.allowUnfree = true;
             };
-            # https://gist.github.com/caseyavila/05862db1fcc8b4544bd9dcc9ecc444b9#file-default-nix
-            tilp = pkgs.stdenv.mkDerivation {
-                name = "tilp";
-                src = pkgs.fetchurl {
-                    url = "https://www.ticalc.org/pub/unix/tilp.tar.gz";
-                    sha256 = "1mww2pjzvlbnjp2z57qf465nilfjmqi451marhc9ikmvzpvk9a3b";
+        in {
+            formatter = pkgs.alejandra;
+            devShells = {
+                default = pkgs.mkShell {
+                    packages = with pkgs; [
+                        tilp
+                        ti-asset-builder
+                        (rust-bin.selectLatestNightlyWith (toolchain:
+                            toolchain.default.override {
+                                extensions = [
+                                    # For debug purposes
+                                    "rust-analyzer"
+                                    "rust-src"
+                                ];
+                            }))
+                    ];
                 };
-                postUnpack = ''
-                	sed -i -e '/AC_PATH_KDE/d' tilp2-1.18/configure.ac || die
-                   sed -i \
-                       -e 's/@[^@]*\(KDE\|QT\|KIO\)[^@]*@//g' \
-                       -e 's/@X_LDFLAGS@//g' \
-                       tilp2-1.18/src/Makefile.am || die
-                '';
-                nativeBuildInputs = with pkgs; [
-                    autoreconfHook
-                    pkg-config
-                    intltool
-                    libtifiles2
-                    libticalcs2
-                    libticables2
-                    libticonv
-                    gtk2
-                ];
-                buildInputs = with pkgs; [
-                    glib
-                ];
             };
-        })
-        pkgsFor;
-        devShells = lib.mapAttrs (system: pkgs: {
-            default = pkgs.mkShell {
-                inputsFrom = [self.packages.${system}.default];
-                packages = with pkgs; [
-                    self.packages.${system}.tilp
-                    cargo-make
-                    (rust-bin.selectLatestNightlyWith (toolchain:
-                        toolchain.default.override {
-                            extensions = [
-                                "rust-analyzer"
-                                "rust-src"
-                            ];
-                        }))
-                ];
-            };
-        })
-        pkgsFor;
-    };
+        });
 }

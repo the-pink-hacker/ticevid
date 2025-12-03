@@ -39,11 +39,11 @@
         "systems": "systems"
       },
       "locked": {
-        "lastModified": 1726560853,
-        "narHash": "sha256-X6rJYSESBVr3hBoH0WbKE5KvhPU5bloyZ2L4K60/fPQ=",
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
         "owner": "numtide",
         "repo": "flake-utils",
-        "rev": "c1dfcf08411b08f6b8615f7d8971a2bfa81d5e8a",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
         "type": "github"
       },
       "original": {
@@ -70,25 +70,26 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1751274312,
-        "narHash": "sha256-/bVBlRpECLVzjV19t5KMdMFWSwKLtb5RyXdjz3LJT+g=",
+        "lastModified": 1764667669,
+        "narHash": "sha256-7WUCZfmqLAssbDqwg9cUDAXrSoXN79eEEq17qhTNM/Y=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "50ab793786d9de88ee30ec4e4c24fb4236fc2674",
+        "rev": "418468ac9527e799809c900eda37cbff999199b6",
         "type": "github"
       },
       "original": {
         "owner": "nixos",
-        "ref": "nixos-24.11",
+        "ref": "nixos-unstable",
         "repo": "nixpkgs",
         "type": "github"
       }
     },
     "root": {
       "inputs": {
+        "flake-utils": "flake-utils",
         "nixpkgs": "nixpkgs",
         "rust-overlay": "rust-overlay",
-        "toolchain": "toolchain"
+        "tice-rust": "tice-rust"
       }
     },
     "rust-overlay": {
@@ -98,11 +99,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1757471515,
-        "narHash": "sha256-0+rSzNsYindDWjO9VVULKGjXlPsQV6IDjRU5G3SwI9U=",
+        "lastModified": 1764729618,
+        "narHash": "sha256-z4RA80HCWv2los1KD346c+PwNPzMl79qgl7bCVgz8X0=",
         "owner": "oxalica",
         "repo": "rust-overlay",
-        "rev": "aecf31120156fe47a7d1992aa814052910178fca",
+        "rev": "52764074a85145d5001bf0aa30cb71936e9ad5b8",
         "type": "github"
       },
       "original": {
@@ -126,13 +127,44 @@
         "type": "github"
       }
     },
+    "tice-rust": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "rust-overlay": [
+          "rust-overlay"
+        ],
+        "toolchain": "toolchain"
+      },
+      "locked": {
+        "lastModified": 1764803129,
+        "narHash": "sha256-0tvgp1SN95KSvXJ49N5VIcwNUpPn6U81N54vu7QXsNM=",
+        "owner": "the-pink-hacker",
+        "repo": "tice-rust",
+        "rev": "981feac1be2d9fee8f3d0a0ea9206298d73d8358",
+        "type": "github"
+      },
+      "original": {
+        "owner": "the-pink-hacker",
+        "repo": "tice-rust",
+        "type": "github"
+      }
+    },
     "toolchain": {
       "inputs": {
         "convbin": "convbin",
         "decbot4Src": "decbot4Src",
-        "flake-utils": "flake-utils",
+        "flake-utils": [
+          "tice-rust",
+          "flake-utils"
+        ],
         "llvm-ez80": "llvm-ez80",
         "nixpkgs": [
+          "tice-rust",
           "nixpkgs"
         ],
         "toolchain": "toolchain_2"
