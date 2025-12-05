@@ -6,4 +6,12 @@ fps = 24
 
 [captions.en_us]
 type = "external"
-source = "video.srt"
+source = "video_en_us.srt"
+
+[captions.en_us_cc]
+type = "external"
+source = "video_en_us_cc.ass"
+
+[captions.fr_fr]
+type = "external"
+source = "video_fr_fr.srt"

@@ -12,7 +12,7 @@ COMPRESSED = NO
 CFLAGS = -Wall -Wextra -Oz -std=c2x
 CXXFLAGS = -Wall -Wextra -Oz
 
-#DEPS = $(BINDIR)/ticevidf.bin
+DEPS = $(BINDIR)/TICEVIDF.8xv
 EXTRA_CLEAN = cargo clean
 
 # ----------------------------
@@ -20,20 +20,25 @@ EXTRA_CLEAN = cargo clean
 include $(shell cedev-config --makefile)
 
 .PHONY: video
-video:
+video: $(BINDIR)/video.bin
+
+$(BINDIR)/video.bin: $(BINDIR)/TICEVIDF.bin
 	cargo run\
 		--bin ticevid-encoder\
 		--release\
 		--\
 		"./resources/video/video.toml"\
-		"./bin/video.iso"
+		"$(BINDIR)/video.bin"
 
-$(BINDIR)/ticevidf.bin:
-	cargo run\
-		--bin asset-builder\
-		--release\
-		--\
-		sprites\
-		"./assets/font/ui.toml"\
-		"./src/generated/"
+$(BINDIR)/TICEVIDF.bin:
+	ti-asset-builder\
+		fontpack\
+		-d\
+		"./assets/fontpack/main.toml"\
+		-t\
+		binary\
+		-o\
+		"$(BINDIR)/TICEVIDF.bin"
 
+$(BINDIR)/TICEVIDF.8xv: $(BINDIR)/TICEVIDF.bin
+	convbin -j bin -k 8xv -i $(BINDIR)/TICEVIDF.bin -o $(BINDIR)/TICEVIDF.8xv -n TICEVIDF

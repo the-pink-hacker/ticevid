@@ -52,6 +52,24 @@
         "type": "github"
       }
     },
+    "flake-utils_2": {
+      "inputs": {
+        "systems": "systems_2"
+      },
+      "locked": {
+        "lastModified": 1726560853,
+        "narHash": "sha256-X6rJYSESBVr3hBoH0WbKE5KvhPU5bloyZ2L4K60/fPQ=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "c1dfcf08411b08f6b8615f7d8971a2bfa81d5e8a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
     "llvm-ez80": {
       "flake": false,
       "locked": {
@@ -89,7 +107,8 @@
         "flake-utils": "flake-utils",
         "nixpkgs": "nixpkgs",
         "rust-overlay": "rust-overlay",
-        "tice-rust": "tice-rust"
+        "tice-rust": "tice-rust",
+        "toolchain": "toolchain"
       }
     },
     "rust-overlay": {
@@ -99,11 +118,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1764729618,
-        "narHash": "sha256-z4RA80HCWv2los1KD346c+PwNPzMl79qgl7bCVgz8X0=",
+        "lastModified": 1764902447,
+        "narHash": "sha256-wNqkDBj+tjK619sTHPEA7uhjr7DHHEY8OsFou31dxy0=",
         "owner": "oxalica",
         "repo": "rust-overlay",
-        "rev": "52764074a85145d5001bf0aa30cb71936e9ad5b8",
+        "rev": "d914a744a83098eeb28125d2848ad383b209223f",
         "type": "github"
       },
       "original": {
@@ -113,6 +132,21 @@
       }
     },
     "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "systems_2": {
       "locked": {
         "lastModified": 1681028828,
         "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
@@ -138,14 +172,16 @@
         "rust-overlay": [
           "rust-overlay"
         ],
-        "toolchain": "toolchain"
+        "toolchain": [
+          "toolchain"
+        ]
       },
       "locked": {
-        "lastModified": 1764805326,
-        "narHash": "sha256-nSSuuXtvi+2h9Z1caiIPIlTp1nfA1Oj6vtXW4bVgrFo=",
+        "lastModified": 1764916432,
+        "narHash": "sha256-J21g+z9osT8pnwoQoWTaF1WZgENJR21Ay9HZ/27WySc=",
         "owner": "the-pink-hacker",
         "repo": "tice-rust",
-        "rev": "6ca2934338d2782ff1ecf629abd4a5a4f6464efb",
+        "rev": "aeffc5da7fd532794f462788ef7e2ce348c857e9",
         "type": "github"
       },
       "original": {
@@ -158,28 +194,24 @@
       "inputs": {
         "convbin": "convbin",
         "decbot4Src": "decbot4Src",
-        "flake-utils": [
-          "tice-rust",
-          "flake-utils"
-        ],
+        "flake-utils": "flake-utils_2",
         "llvm-ez80": "llvm-ez80",
         "nixpkgs": [
-          "tice-rust",
           "nixpkgs"
         ],
         "toolchain": "toolchain_2"
       },
       "locked": {
-        "lastModified": 1727778445,
-        "narHash": "sha256-VSq8A2Exzm+QTh88mnhB3wRlQ9xER6+k3ZzY26ymbSY=",
-        "owner": "myclevorname",
-        "repo": "flake",
-        "rev": "b7bde22344ec3f70d973db0186139bf7b65d7f2d",
+        "lastModified": 1764916156,
+        "narHash": "sha256-8COfDv9LJUAJ+E6SqZYBzIOgIbILRxAiZqYiXelta3M=",
+        "owner": "the-pink-hacker",
+        "repo": "ce-toolchain-nix",
+        "rev": "126dc0ebedb78ac98bce4a5f9227ea4353c3661b",
         "type": "github"
       },
       "original": {
-        "owner": "myclevorname",
-        "repo": "flake",
+        "owner": "the-pink-hacker",
+        "repo": "ce-toolchain-nix",
         "type": "github"
       }
     },

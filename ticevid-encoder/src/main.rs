@@ -343,8 +343,6 @@ async fn serialize_video(
         }
     }
 
-    //panic!("{builder:#?}");
-
     builder.build(&mut output_buffer).await
 }
 

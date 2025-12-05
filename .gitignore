@@ -4,6 +4,7 @@ resources/video/*.mkv
 resources/video/*.mp4
 resources/video/*.mov
 resources/video/*.srt
+resources/video/*.ass
 obj/
 src/gfx/*.c
 src/gfx/*.h
