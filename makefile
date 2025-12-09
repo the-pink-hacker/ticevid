@@ -41,4 +41,4 @@ $(BINDIR)/TICEVIDF.bin:
 		"$(BINDIR)/TICEVIDF.bin"
 
 $(BINDIR)/TICEVIDF.8xv: $(BINDIR)/TICEVIDF.bin
-	convbin -j bin -k 8xv -i $(BINDIR)/TICEVIDF.bin -o $(BINDIR)/TICEVIDF.8xv -n TICEVIDF
+	convbin -j bin -k 8xv -i $(BINDIR)/TICEVIDF.bin -o $(BINDIR)/TICEVIDF.8xv -n TICEVIDF -r

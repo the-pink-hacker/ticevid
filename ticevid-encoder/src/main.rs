@@ -23,10 +23,10 @@ pub const LCD_HEIGHT: u16 = 240;
 pub const BLOCK_SIZE: u16 = 512;
 pub const BLOCKS_PER_HEADER: u8 = 4;
 pub const HEADER_SIZE: u16 = BLOCK_SIZE * BLOCKS_PER_HEADER as u16;
-pub const BLOCKS_PER_CHUNK: u8 = 96;
+pub const BLOCKS_PER_CHUNK: u8 = 16;
 pub const CHUNK_SIZE: u16 = BLOCK_SIZE * BLOCKS_PER_CHUNK as u16;
-// Smallest header is 5 bytes
-pub const MAX_FRAME_SIZE: u16 = CHUNK_SIZE - 5;
+pub const CHUNK_HEADER_SIZE: u16 = 1;
+pub const CHUNK_PAYLOAD_SIZE: u16 = CHUNK_SIZE - CHUNK_HEADER_SIZE;
 pub const SCHEMA_VERSION: u8 = 0;
 
 pub const FRAME_FORMAT: ImageFormat = ImageFormat::Qoi;
@@ -93,8 +93,8 @@ pub enum CaptionSource {
     },
     /// From the video file
     Internal {
-        /// The name of the caption track
-        name: String,
+        /// The index of the caption track
+        index: u8,
     },
 }
 
@@ -142,8 +142,6 @@ enum SectorId {
     ChunksStart,
     ChunkFirst(u8),
     ChunkStart(u8, u16),
-    ChunkHeader(u8, u16),
-    ChunkTable(u8, u16),
     ChunkData(u8, u16),
     ChunkEnd(u8, u16),
     ChunkLast(u8),
