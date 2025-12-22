@@ -48,13 +48,15 @@ and a series of chunks that make up the picture and caption data.
 
 All offsets are relative from the start of the start of the header.
 
-| Field            | Type        | Description                                                 |
-|------------------|-------------|-------------------------------------------------------------|
-| `format_version` | `u24`       | The format version; should be `0` for now.                  |
-| `title_count`    | `u8`        | The number of titles.                                       |
-| `title_table`    | `?[&Title]` | All titles that can be played.[^1]                          |
-| `font_pack`      | `?[u8]`     | The fontlibc fontpack used for captions of menus.[^2]       |
-| `ui_font_index`  | `u8`        | The font index into `font_pack` that is used for menus.[^4] |
+| Field                  | Type        | Description                                                 |
+|------------------------|-------------|-------------------------------------------------------------|
+| `format_version_major` | `u16`       | The format version's major value. Should be `0`.            |
+| `format_version_minor` | `u8`        | The format version's minor value. Should be `1`.            |
+| `format_version_patch` | `u8`        | The format version's patch value. Should be `0`.            |
+| `title_count`          | `u8`        | The number of titles.[^4]                                   |
+| `title_table`          | `&[&Title]` | All titles that can be played.                              |
+| `font_pack`            | `?[u8]`     | The fontlibc fontpack used for captions of menus.[^2]       |
+| `ui_font_index`        | `u8`        | The font index into `font_pack` that is used for menus.[^5] |
 
 ### Title
 
@@ -74,7 +76,7 @@ All offsets are relative from the start of the start of the header.
 | `caption_transparent` | `bool`             | Whether the caption background is transparent. Overrides background color. |
 | `chapter_count`       | `u8`               | The number of chapters in the title.                                       |
 | `chapter_table`       | `?[&Chapter]`      | All chapters in the title.[^1]                                             |
-| `picture_chunk_size`  | `u16`              | The size of the first picture chunk.[^4]                                   |
+| `picture_chunk_size`  | `u16`              | The size of the first picture chunk in bytes.[^4]                          |
 | `picture_chunk`       | `u24`              | The index of the first picture chunk.                                      |
 
 ### Caption Track
@@ -103,12 +105,20 @@ Chunks have an alignment of 16 blocks and should never exceed 16 blocks in size.
 
 Subsequent picture chunks only contain image data for their payload.
 
+| Field              | Type   | Description                                                      |
+|--------------------|--------|------------------------------------------------------------------|
+| `chunk_start`      | `u24`  | The index of the remaining chunks start at. `0` if last chunk.   |
+| `chunk_count`      | `u8`   | The number of remaining chunks in the frame.                     |
+| `first_chunk_size` | `u24`  | The size of the first picture chunk in bytes. `0` if last chunk. |
+| `chunk_size`       | `u24`  | The size of the frame's next chunk in bytes. `0` if last frame.  |
+| `image`            | `[u8]` | A modified version of the Quite OK Image format (QOI).           |
+
+## Picture Chunk
+
 | Field        | Type   | Description                                             |
 |--------------|--------|---------------------------------------------------------|
-| `chunk_start`| `u24`  | The index the remaining chunks start at.                |
-| `chunk_count`| `u8`   | The number of remaining chunks in the frame.[^4]        |
 | `chunk_size` | `u24`  | The size of the next chunk in bytes. `0` if last chunk. |
-| `image`      | `[u8]` | A modified version of Quite OK Image format (QOI).      |
+| `image`      | `[u8]` | A remaining picture data.                               |
 
 ## Caption Chunk
 
@@ -143,5 +153,6 @@ Caption text should match the selected font's encoding.[^2]
 
 [^1]: Only null when count is zero.
 [^2]: When no fonts are provided, all strings are expected to be ASCII.
-[^3]: Glyphs `0` through `127` should follow ASCII.
+[^3]: Glyphs indices `0` through `127` should follow ASCII.
 [^4]: Non-zero value.
+[^5]: Should be zero if no font pack is provided.

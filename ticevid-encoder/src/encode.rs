@@ -25,7 +25,7 @@ impl FrameEncoder for LzssEncoder {
 }
 
 /// Modified QOI algorithm
-/// Based on https://qoiformat.org/qoi-specification.pdf
+/// Based on <https://qoiformat.org/qoi-specification.pdf/>
 ///
 /// The major difference is there's only one color channel.
 /// Diff and luma have been replaced with a 7-bit diff
@@ -73,7 +73,7 @@ impl QoiEncoder {
         let diff = match value {
             i8::MIN..-64 | 0 | 65..=i8::MAX => panic!("Invalid diff chunk value of {value}"),
             -64..0 => 127u8.strict_add_signed(value + 1),
-            1..=64 => value as u8 - 1,
+            1..=64 => value.cast_unsigned() - 1,
         };
 
         self.write(QOI_TAG_DIFF | diff, output_buffer);
@@ -138,7 +138,7 @@ impl QoiEncoder {
         output_buffer: &mut [u8],
     ) -> QoiControl {
         if let Some(&pixel) = pixels.peek() {
-            let diff = pixel.wrapping_sub(self.previous_pixel) as i8;
+            let diff = pixel.wrapping_sub(self.previous_pixel).cast_signed();
 
             match diff {
                 i8::MIN..-64 | 0 | 65..=i8::MAX => QoiControl::Invalid,

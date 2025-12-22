@@ -4,18 +4,17 @@ use anyhow::Context;
 use log::{debug, info};
 use rust_ffmpeg::{FFmpegBuilder, PixelFormat, VideoFilter};
 
-use crate::{VideoDefinition, FRAME_FORMAT_EXTENSION, LCD_WIDTH};
+use crate::{FRAME_FORMAT_EXTENSION, LCD_WIDTH, definition::title::TitleDefinition};
 
-impl VideoDefinition {
-    pub fn frames_folder(&self, output_folder: &Path) -> anyhow::Result<PathBuf> {
+impl TitleDefinition {
+    pub fn frames_folder(&self, output_directory: &Path) -> anyhow::Result<PathBuf> {
         let video_name = self
             .video
-            .source
             .file_stem()
-            .with_context(|| format!("Failed to get source file name: {:?}", self.video.source))?
+            .with_context(|| format!("Failed to get source file name: {}", self.video.display()))?
             .to_os_string();
 
-        let mut frames_folder = output_folder.join(video_name);
+        let mut frames_folder = output_directory.join(video_name);
         frames_folder.as_mut_os_string().push("-frames");
 
         Ok(frames_folder)
@@ -24,30 +23,35 @@ impl VideoDefinition {
     /// Returns the number of frames generated
     pub async fn create_frames(
         &self,
-        definition_folder: &Path,
-        frames_folder: &Path,
+        title_directory: &Path,
+        frames_directory: &Path,
     ) -> anyhow::Result<u32> {
-        if tokio::fs::try_exists(&frames_folder)
+        if tokio::fs::try_exists(&frames_directory)
             .await
             .unwrap_or_default()
         {
-            tokio::fs::remove_dir_all(&frames_folder).await?;
+            tokio::fs::remove_dir_all(&frames_directory).await?;
         }
-        tokio::fs::create_dir_all(&frames_folder)
+        tokio::fs::create_dir_all(&frames_directory)
             .await
-            .with_context(|| format!("Failed to create frame directory: {frames_folder:?}"))?;
+            .with_context(|| {
+                format!(
+                    "Failed to create frame directory: {}",
+                    frames_directory.display()
+                )
+            })?;
 
-        let video_path = definition_folder.join(&self.video.source);
+        let video_path = title_directory.join(&self.video);
 
         let mut input = rust_ffmpeg::Input::new(video_path)
             .option("probesize", "100M")
             .option("analyzeduration", "100M");
 
-        if let Some(start) = self.video.start.as_ref().cloned() {
+        if let Some(start) = self.start.clone() {
             input = input.seek(start.into());
         }
 
-        if let Some(duration) = self.video.durration.as_ref().cloned() {
+        if let Some(duration) = self.durration.clone() {
             input = input.duration(duration.into());
         }
 
@@ -55,12 +59,12 @@ impl VideoDefinition {
             .input(input)
             .output(
                 rust_ffmpeg::Output::new(
-                    frames_folder.join(format!("%d.{FRAME_FORMAT_EXTENSION}")),
+                    frames_directory.join(format!("%d.{FRAME_FORMAT_EXTENSION}")),
                 )
                 .no_audio()
                 .no_subtitles()
                 .option("pix_fmt", PixelFormat::rgb24().to_string())
-                .option("r", self.video.fps.to_string()),
+                .option("r", self.fps.to_string()),
             )
             .video_filter(VideoFilter::scale_aspect(LCD_WIDTH.into()))
             .overwrite()
@@ -76,13 +80,13 @@ impl VideoDefinition {
 
         builder.spawn().await?.wait().await?;
 
-        let frames_folder = frames_folder.to_path_buf();
+        let frames_folder = frames_directory.to_path_buf();
         let frames = tokio::runtime::Handle::current()
             .spawn_blocking(move || std::fs::read_dir(frames_folder).map(std::fs::ReadDir::count))
             .await??;
 
         debug!("Output {frames} frames");
 
-        Ok(frames as u32)
+        u32::try_from(frames).with_context(|| format!("Frames exceeded maximum amount: {frames}"))
     }
 }

@@ -11,10 +11,12 @@ license.workspace = true
 anyhow.workspace = true
 clap = { workspace = true, features = ["derive"] }
 env_logger.workspace = true
+futures-util = "0.3.31"
 image = { workspace = true, features = ["qoi"] }
 indexmap.workspace = true
 log = { workspace = true, features = ["max_level_trace", "release_max_level_info", "std"] }
 lzss = { workspace = true, features = ["std"] }
+num_cpus.workspace = true
 rlimit.workspace = true
 rust_ffmpeg.workspace = true
 serde = { workspace = true, features = ["derive"] }
