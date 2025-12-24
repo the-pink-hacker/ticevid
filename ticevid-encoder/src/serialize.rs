@@ -242,7 +242,7 @@ pub async fn serialize_container(
                 .u8(0)
                 // Chapter table
                 .null_24()
-                .dynamic_u24(
+                .dynamic_u16(
                     SectorId::PictureChunk(first_picture_chunk_id),
                     SectorId::PictureChunkEnd(first_picture_chunk_id),
                     0,
@@ -299,17 +299,17 @@ pub async fn serialize_container(
                         CHUNK_SIZE as usize,
                     )
                     .u8(chunk_count)
-                    .dynamic_u24(
+                    .dynamic_u16(
                         SectorId::PictureChunk(next_chunk_id),
                         SectorId::PictureChunkEnd(next_chunk_id),
                         0,
                     )
             } else {
-                picture_sector_builder.null_24().u8(0).null_24()
+                picture_sector_builder.null_24().u8(0).null_16()
             };
 
             picture_sector_builder = if frame_sizes_iter.is_empty() {
-                picture_sector_builder.null_24()
+                picture_sector_builder.null_16()
             } else {
                 let next_frame_id = PictureChunkId {
                     title_index,
@@ -317,7 +317,7 @@ pub async fn serialize_container(
                     chunk_index: 0,
                 };
 
-                picture_sector_builder.dynamic_u24(
+                picture_sector_builder.dynamic_u16(
                     SectorId::PictureChunk(next_frame_id),
                     SectorId::PictureChunkEnd(next_frame_id),
                     0,
@@ -365,7 +365,7 @@ pub async fn serialize_container(
                 let mut sector_builder = SectorBuilder::default();
 
                 sector_builder = if chunk_sizes_iter.is_empty() {
-                    sector_builder.null_24()
+                    sector_builder.null_16()
                 } else {
                     let next_chunk_id = PictureChunkId {
                         title_index,
@@ -373,7 +373,7 @@ pub async fn serialize_container(
                         chunk_index: chunk_index as u8 + 1,
                     };
 
-                    sector_builder.dynamic_u24(
+                    sector_builder.dynamic_u16(
                         SectorId::PictureChunk(next_chunk_id),
                         SectorId::PictureChunkEnd(next_chunk_id),
                         0,

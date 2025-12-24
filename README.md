@@ -1,6 +1,6 @@
 # TICEVid
 
-This is still very WIP.
+This is still very WIP. The player doesn't validate many things; use at your own discretion.
 
 **TICEVid** is video player for the TI-84 Plus CE with DVD-like features over USB.
 Since the calculator has no speaks, it has support for positional captions.

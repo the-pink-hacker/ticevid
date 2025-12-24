@@ -11,8 +11,7 @@
 
 ticevid_ui_state_t ui_state = TICEVID_UI_MAIN;
 
-// Using the sans font because I don't want to make a new font
-static const char *TICEVID_FONT_DEFAULT = "SANSFNT";
+static const char *TICEVID_FONT_DEFAULT = "TICEVIDF";
 
 static fontlib_font_t *ticevid_font_main;
 
@@ -68,13 +67,13 @@ ticevid_result_t ticevid_ui_update(void) {
 
                 result = ticevid_video_load_header();
 
-                ui_state = TICEVID_UI_VIDEO_SELECT;
+                ui_state = TICEVID_UI_TITLE_SELECT;
 
                 return result;
             }
 
             break;
-        case TICEVID_UI_VIDEO_SELECT:
+        case TICEVID_UI_TITLE_SELECT:
             break;
         case TICEVID_UI_LOADING_VIDEO:
             ui_state = TICEVID_UI_PLAYING;

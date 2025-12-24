@@ -1,29 +1,32 @@
 #include <stdlib.h>
 
 #include <msddrvce.h>
+#include <sys/lcd.h>
 
 #include "qoi.h"
 #include "usb.h"
 #include "video.h"
 
 const uint8_t TICEVID_DEFAULT_SCHEMA_VERSION = 0;
-const uint24_t TICEVID_BLOCKS_PER_HEADER = 4;
+const uint24_t TICEVID_BLOCKS_PER_HEADER = 16;
 const uint24_t TICEVID_HEADER_SIZE = MSD_BLOCK_SIZE * TICEVID_BLOCKS_PER_HEADER;
-const uint24_t TICEVID_BLOCKS_PER_CHUNK = 96;
+const uint24_t TICEVID_BLOCKS_PER_CHUNK = 16;
 const uint24_t TICEVID_CHUNK_SIZE = MSD_BLOCK_SIZE * TICEVID_BLOCKS_PER_CHUNK;
 
-static uint24_t current_frame = 0;
-static uint24_t current_chunk = 0;
-static uint24_t last_frame_of_chunk = 0;
+const uint8_t BUFFER_COUNT = 4;
 
-ticevid_video_header_t *ticevid_video_header;
-ticevid_video_header_t *ticevid_video_chunk;
+//static uint24_t current_frame = 0;
+//static uint24_t current_chunk = 0;
+//static uint24_t last_frame_of_chunk = 0;
+
+ticevid_container_header_t *ticevid_video_container_header;
+//ticevid_video_header_t ticevid_video_chunk[BUFFER_COUNT];
 
 static bool ticevid_video_is_loaded(void) {
-    return ticevid_video_header != NULL;
+    return ticevid_video_container_header != NULL;
 }
 
-static void offset_pointer(void *pointer, uint24_t offset) {
+static void offset_pointer_null(void *pointer, uint24_t offset) {
     if (pointer == NULL) {
         return;
     }
@@ -31,51 +34,120 @@ static void offset_pointer(void *pointer, uint24_t offset) {
     pointer += offset;
 }
 
-ticevid_result_t ticevid_video_load_header(void) {
-    ticevid_result_t result = ticevid_usb_copy_chunk(0, TICEVID_BLOCKS_PER_HEADER, (uint8_t *)ticevid_video_header);
-
-    if (result != TICEVID_SUCCESS) {
-        return result;
+static ticevid_result_t offset_pointer(void *pointer, uint24_t offset) {
+    if (pointer == NULL) {
+        return TICEVID_VIDEO_HEADER_INVALID;
     }
 
-    // Offset all pointers to be global instead of local
-    uint24_t offset = (uint24_t)ticevid_video_header;
+    pointer += offset;
 
-    offset_pointer(ticevid_video_header->title, offset);
-    offset_pointer(ticevid_video_header->video_table, offset);
-    offset_pointer(ticevid_video_header->caption_table, offset);
-    offset_pointer(ticevid_video_header->font_table, offset);
+    return TICEVID_SUCCESS;
+}
 
-    uint8_t video_length = ticevid_video_header->video_table_length;
-    ticevid_video_data_t **video_table = ticevid_video_header->video_table;
+// Unsures every offset is a valid pointer
+static ticevid_result_t ticevid_video_caption_track_init(ticevid_caption_track_t *caption, uint24_t offset) {
+    EARLY_EXIT(offset_pointer(caption->name, offset));
+    
+    if (caption->chunk_size == 0) {
+        return TICEVID_VIDEO_HEADER_INVALID;
+    }
 
-    if (video_length > 0) {
-        if (video_table == NULL) {
-            return TICEVID_VIDEO_HEADER_INVALID;
-        }
-
-        ticevid_video_data_t *video_entries = *video_table;
-
-        for (uint24_t i = 0; i < video_length; i += 3) {
-            ticevid_video_data_t *video_entry = video_entries + i;
-
-            if (video_entry == NULL) {
-                return TICEVID_VIDEO_HEADER_INVALID;
-            }
-
-            offset_pointer(video_entry->title, offset);
-            offset_pointer(video_entry->icon, offset);
-        }
+    if (caption->chunk_count == 0) {
+        return TICEVID_VIDEO_HEADER_INVALID;
     }
 
     return TICEVID_SUCCESS;
 }
 
-ticevid_result_t ticevid_video_init(void) {
-    ticevid_video_header = (ticevid_video_header_t *)malloc(TICEVID_HEADER_SIZE);
-    ticevid_video_chunk = (ticevid_video_header_t *)malloc(TICEVID_CHUNK_SIZE);
+// Unsures every offset is a valid pointer
+static void ticevid_video_chapter_init(ticevid_chapter_t *chapter, uint24_t offset) {
+    offset_pointer_null(chapter->name, offset);
+}
 
-    if (!ticevid_video_is_loaded() || ticevid_video_chunk == NULL) {
+// Unsures every offset is a valid pointer
+static ticevid_result_t ticevid_video_title_init(ticevid_title_t *title, uint24_t offset) {
+    offset_pointer_null(title->name, offset);
+
+    // Count is zero if null
+    if (title->color_palette == NULL && title->color_palette_count != 0) {
+        return TICEVID_VIDEO_HEADER_INVALID;
+    }
+
+    offset_pointer_null(title->color_palette, offset);
+    offset_pointer_null(title->icon, offset);
+
+    if (title->height > LCD_HEIGHT) {
+        return TICEVID_VIDEO_HEADER_INVALID;
+    }
+
+    if (title->frame_count == 0) {
+        return TICEVID_VIDEO_HEADER_INVALID;
+    }
+
+    // Count is zero if null
+    if (title->caption_tracks == NULL && title->caption_track_count != 0) {
+        return TICEVID_VIDEO_HEADER_INVALID;
+    }
+
+    offset_pointer_null(title->caption_tracks, offset);
+
+    for (uint8_t i = 0; i < title->caption_track_count; i++) {
+        EARLY_EXIT(offset_pointer(title->caption_tracks[i], offset));
+        EARLY_EXIT(ticevid_video_caption_track_init(title->caption_tracks[i], offset));
+    }
+
+    // Count is zero if null
+    if (title->chapter_table == NULL && title->chapter_count != 0) {
+        return TICEVID_VIDEO_HEADER_INVALID;
+    }
+
+    offset_pointer_null(title->chapter_table, offset);
+
+    for (uint8_t i = 0; i < title->chapter_count; i++) {
+        EARLY_EXIT(offset_pointer(title->chapter_table[i], offset));
+        ticevid_video_chapter_init(title->chapter_table[i], offset);
+    }
+
+    return TICEVID_SUCCESS;
+}
+
+// Unsures every offset is a valid pointer
+static ticevid_result_t ticevid_video_container_init(ticevid_container_header_t *container) {
+    // Offset all pointers to be global instead of local
+    uint24_t offset = (uint24_t)container;
+
+    if (container->title_count == 0) {
+        return TICEVID_VIDEO_HEADER_INVALID;
+    }
+    
+    EARLY_EXIT(offset_pointer(container->title_table, offset));
+
+    for (uint8_t i = 0; i < container->title_count; i++) {
+        EARLY_EXIT(offset_pointer(container->title_table[i], offset));
+        EARLY_EXIT(ticevid_video_title_init(container->title_table[i], offset));
+    }
+
+    // Font index should be zero if no font pack is provided.
+    if (container->font_pack == NULL && container->ui_font_index != 0) {
+        return TICEVID_VIDEO_HEADER_INVALID;
+    }
+
+    offset_pointer_null(container->font_pack, offset);
+
+    return TICEVID_SUCCESS;
+}
+
+ticevid_result_t ticevid_video_load_header(void) {
+    EARLY_EXIT(ticevid_usb_copy_chunk(0, TICEVID_BLOCKS_PER_HEADER, (uint8_t *)ticevid_video_container_header));
+
+    return ticevid_video_container_init(ticevid_video_container_header);
+}
+
+ticevid_result_t ticevid_video_init(void) {
+    ticevid_video_container_header = (ticevid_container_header_t *)malloc(TICEVID_HEADER_SIZE);
+    //ticevid_video_chunk = (ticevid_video_header_t *)malloc(TICEVID_CHUNK_SIZE);
+
+    if (!ticevid_video_is_loaded() || ticevid_video_container_header == NULL) {
         return TICEVID_VIDEO_CHUNK_MEMORY;
     }
 
@@ -83,8 +155,8 @@ ticevid_result_t ticevid_video_init(void) {
 }
 
 void ticevid_video_cleanup(void) {
-    free(ticevid_video_header);
-    free(ticevid_video_chunk);
+    free(ticevid_video_container_header);
+    //free(ticevid_video_chunk);
 }
 
 ticevid_result_t ticevid_video_play_update(void) {

@@ -33,8 +33,8 @@ pub const BLOCKS_PER_CHUNK: u8 = 16;
 pub const CHUNK_SIZE: u16 = BLOCK_SIZE * BLOCKS_PER_CHUNK as u16;
 pub const SCHEMA_VERSION: u24 = u24::checked_from_u32(0).unwrap();
 
-pub const PICTURE_START_IMAGE_SIZE: usize = CHUNK_SIZE as usize - 10;
-pub const PICTURE_IMAGE_SIZE: usize = CHUNK_SIZE as usize - 3;
+pub const PICTURE_START_IMAGE_SIZE: usize = CHUNK_SIZE as usize - 8;
+pub const PICTURE_IMAGE_SIZE: usize = CHUNK_SIZE as usize - 2;
 
 pub const FRAME_FORMAT: ImageFormat = ImageFormat::Qoi;
 pub const FRAME_FORMAT_EXTENSION: &str = "qoi";

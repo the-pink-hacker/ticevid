@@ -85,7 +85,7 @@ All offsets are relative from the start of the start of the header.
 |---------------|--------|------------------------------------------------------|
 | `name`        | `?str` | The name of the caption track displayed to the user. |
 | `font_index`  | `u8`   | The index of the font this track uses.               |
-| `chunk_size`  | `u16`  | The size of the first chunk in bytes.                |
+| `chunk_size`  | `u16`  | The size of the first chunk in bytes.[^4]            |
 | `chunk_start` | `u24`  | The index of the first chunk.                        |
 | `chunk_count` | `u24`  | The amount of chunks.[^4]                            |
 
@@ -109,15 +109,15 @@ Subsequent picture chunks only contain image data for their payload.
 |--------------------|--------|------------------------------------------------------------------|
 | `chunk_start`      | `u24`  | The index of the remaining chunks start at. `0` if last chunk.   |
 | `chunk_count`      | `u8`   | The number of remaining chunks in the frame.                     |
-| `first_chunk_size` | `u24`  | The size of the first picture chunk in bytes. `0` if last chunk. |
-| `chunk_size`       | `u24`  | The size of the frame's next chunk in bytes. `0` if last frame.  |
+| `first_chunk_size` | `u16`  | The size of the first picture chunk in bytes. `0` if last chunk. |
+| `chunk_size`       | `u16`  | The size of the frame's next chunk in bytes. `0` if last frame.  |
 | `image`            | `[u8]` | A modified version of the Quite OK Image format (QOI).           |
 
 ## Picture Chunk
 
 | Field        | Type   | Description                                             |
 |--------------|--------|---------------------------------------------------------|
-| `chunk_size` | `u24`  | The size of the next chunk in bytes. `0` if last chunk. |
+| `chunk_size` | `u16`  | The size of the next chunk in bytes. `0` if last chunk. |
 | `image`      | `[u8]` | A remaining picture data.                               |
 
 ## Caption Chunk
@@ -126,7 +126,7 @@ Subsequent picture chunks only contain image data for their payload.
 |-----------------|--------------|---------------------------------------------------------|
 | `frame`         | `u24`        | The frame index the chunk starts.                       |
 | `frame_count`   | `u24`        | The number of frames this chunks lasts.[^4]             |
-| `chunk_size`    | `u24`        | The size of the next chunk in bytes. `0` if last chunk. |
+| `chunk_size`    | `u16`        | The size of the next chunk in bytes. `0` if last chunk. |
 | `captions`      | `&[Caption]` | The captions in this chunk.                             |
 | `caption_count` | `u8`         | How many captions are in this chunk.[^4]                |
 
@@ -138,7 +138,7 @@ Caption text should match the selected font's encoding.[^2]
 |-------------------|-----------|---------------------------------------------------------|
 | `frame_start`     | `u24`     | Starting frame relative from current frame.             |
 | `frame_durration` | `u24`     | How many frames this caption will last.                 |
-| `chunk_size`      | `u24`     | The size of the next chunk in bytes. `0` if last chunk. |
+| `chunk_size`      | `u16`     | The size of the next chunk in bytes. `0` if last chunk. |
 | `position`        | `u8`      | See [caption position](#caption-position).              |
 | `line_count`      | `u8`      | The number of lines.[^4]                                |
 | `lines`           | `&[&str]` | Each line of the text to be displayed.                  |

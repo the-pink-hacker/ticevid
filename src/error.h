@@ -1,6 +1,6 @@
 #pragma once
 
-typedef enum {
+typedef enum [[nodiscard]] {
     TICEVID_SUCCESS = 0,
     TICEVID_USER_EXIT,
     TICEVID_USB_INIT_ERROR,
@@ -13,3 +13,6 @@ typedef enum {
     TICEVID_FONT_MISSING,
     TICEVID_FONT_INVALID,
 } ticevid_result_t;
+
+// Continues if success, else returns.
+#define EARLY_EXIT(a) ({ ticevid_result_t result = a; if (result != TICEVID_SUCCESS) { return result; } })

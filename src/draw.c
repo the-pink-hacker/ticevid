@@ -41,14 +41,23 @@ ticevid_result_t ticevid_draw_update(void) {
             fontlib_HomeUp();
             fontlib_DrawString("Loading...");
             break;
-        case TICEVID_UI_VIDEO_SELECT:
+        case TICEVID_UI_TITLE_SELECT:
             gfx_FillScreen(0xFF);
             fontlib_ClearWindow();
             fontlib_HomeUp();
-            fontlib_DrawString("Select video.");
+            fontlib_DrawString("Select title.");
             fontlib_Newline();
-            fontlib_DrawString(ticevid_video_header->title);
-            fontlib_Newline();
+
+            ticevid_container_header_t container = *ticevid_video_container_header;
+
+            for (uint8_t i = 0; i < container.title_count; i++) {
+                ticevid_title_t title = *container.title_table[i];
+
+                fontlib_DrawString("  ");
+                fontlib_DrawString(title.name);
+                fontlib_Newline();
+            }
+
             fontlib_DrawString("Done.");
             break;
         case TICEVID_UI_PLAYING:
