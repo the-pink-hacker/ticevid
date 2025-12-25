@@ -28,8 +28,17 @@ static int ticevid_handle_errors(ticevid_result_t result) {
         case TICEVID_VIDEO_CHUNK_MEMORY:
             ticevid_io_println("Insufficient memory for video chunk.");
             break;
-        case TICEVID_VIDEO_HEADER_INVALID:
-            ticevid_io_println("Failed to parse video header.");
+        case TICEVID_VIDEO_CONTAINER_INVALID:
+            ticevid_io_println("Failed to parse container header.");
+            break;
+        case TICEVID_VIDEO_CONTAINER_NULL:
+            ticevid_io_println("Container offset is null.");
+            break;
+        case TICEVID_VIDEO_CONTAINER_VERSION:
+            ticevid_io_println("Container version unsupported.");
+            break;
+        case TICEVID_VIDEO_CONTAINER_TITLE:
+            ticevid_io_println("Failed to parse container title.");
             break;
         case TICEVID_FONT_MISSING:
             ticevid_io_println("Selected font is missing from system.");

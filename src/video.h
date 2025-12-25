@@ -42,10 +42,14 @@ typedef struct ticevid_title {
     uint24_t picture_chunk;
 } ticevid_title_t;
 
+typedef struct ticevid_container_version {
+    uint16_t major;
+    uint8_t minor;
+    uint8_t patch;
+} ticevid_container_version_t;
+
 typedef struct ticevid_container_header {
-    uint16_t format_version_major;
-    uint8_t format_version_minor;
-    uint16_t format_version_patch;
+    ticevid_container_version_t version;
     uint8_t title_count;
     ticevid_title_t **title_table;
     fontlib_font_pack_t *font_pack;

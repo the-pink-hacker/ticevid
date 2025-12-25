@@ -208,16 +208,12 @@ pub async fn serialize_container(
         title_builder = if title.name.is_empty() {
             title_builder.null_24()
         } else {
-            builder = builder.sector(
-                SectorId::TitleName { title_index },
-                SectorBuilder::default().string(title.name.clone()),
-            );
             title_builder.dynamic_u24(SectorId::Header, SectorId::TitleName { title_index }, 0)
         };
 
         builder = builder.sector(
             SectorId::Title { title_index },
-            SectorBuilder::default()
+            title_builder
                 // Color palette count
                 .u8(0)
                 // Color palette
@@ -254,6 +250,13 @@ pub async fn serialize_container(
                     CHUNK_SIZE as usize,
                 ),
         );
+
+        if !title.name.is_empty() {
+            builder = builder.sector(
+                SectorId::TitleName { title_index },
+                SectorBuilder::default().string(title.name.clone()),
+            );
+        }
     }
 
     // End of header
