@@ -26,20 +26,24 @@ static bool ticevid_video_is_loaded(void) {
     return ticevid_video_container_header != NULL;
 }
 
-static void offset_pointer_null(void **pointer, uint24_t offset) {
-    if (*pointer == NULL) {
+static void offset_pointer_null(void *pointer, uint24_t offset) {
+    void **deref = (void **)pointer;
+
+    if (*deref == NULL) {
         return;
     }
 
-    *pointer += offset;
+    *deref += offset;
 }
 
-static ticevid_result_t offset_pointer(void **pointer, uint24_t offset) {
-    if (*pointer == NULL) {
+static ticevid_result_t offset_pointer(void *pointer, uint24_t offset) {
+    void **deref = (void **)pointer;
+
+    if (*deref == NULL) {
         return TICEVID_VIDEO_CONTAINER_NULL;
     }
 
-    *pointer += offset;
+    *deref += offset;
 
     return TICEVID_SUCCESS;
 }
