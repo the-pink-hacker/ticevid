@@ -73,15 +73,15 @@
     "llvm-ez80": {
       "flake": false,
       "locked": {
-        "lastModified": 1702487697,
-        "narHash": "sha256-g9AVQF48HvaOzwm6Fr935+2+Ch+nvUV2afygb3iUflw=",
-        "owner": "jacobly0",
+        "lastModified": 1762764369,
+        "narHash": "sha256-ikWuB1CCqG7uy9gpwpCUIawEkiVTUdzPsQJWb+R2Flk=",
+        "owner": "CE-Programming",
         "repo": "llvm-project",
-        "rev": "005a99ce2569373524bd881207aa4a1e98a2b238",
+        "rev": "263e6374ab7ac991c1bac4ed5ae7821242623cc5",
         "type": "github"
       },
       "original": {
-        "owner": "jacobly0",
+        "owner": "CE-Programming",
         "repo": "llvm-project",
         "type": "github"
       }
@@ -177,11 +177,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1766689375,
-        "narHash": "sha256-BGgP9hfQ6jzmGhvfj0HgmPtYe+SfLcF1T1vg32qKd1E=",
+        "lastModified": 1766779428,
+        "narHash": "sha256-k9cqnQvwZW17gD07H+8JaLNnhsBR9TzkqtRmTyf+6y4=",
         "owner": "the-pink-hacker",
         "repo": "tice-rust",
-        "rev": "a3199a45c6bdd10deca856ff3e48a995de5aa995",
+        "rev": "e325b64c017699354ccf04f4a6f209af2edfa5d4",
         "type": "github"
       },
       "original": {
@@ -202,11 +202,11 @@
         "toolchain": "toolchain_2"
       },
       "locked": {
-        "lastModified": 1764916156,
-        "narHash": "sha256-8COfDv9LJUAJ+E6SqZYBzIOgIbILRxAiZqYiXelta3M=",
+        "lastModified": 1766779260,
+        "narHash": "sha256-jsX+zqWcLhw9c1i+d6KXswr5P3z/FZLXREQTwRC97zM=",
         "owner": "the-pink-hacker",
         "repo": "ce-toolchain-nix",
-        "rev": "126dc0ebedb78ac98bce4a5f9227ea4353c3661b",
+        "rev": "ed107951b6f781242eddeaf4ec721d946257ce01",
         "type": "github"
       },
       "original": {
@@ -218,11 +218,11 @@
     "toolchain_2": {
       "flake": false,
       "locked": {
-        "lastModified": 1727774403,
-        "narHash": "sha256-gLafZZxrZB3kuyM/NMnDMn8HyRjm5/srnq0VhsgXzJM=",
+        "lastModified": 1766392899,
+        "narHash": "sha256-DLs+bfz5R/jwOahSMQMMr5L2f3TrHjcHCib/pq1J7qY=",
         "ref": "refs/heads/master",
-        "rev": "98d855b2d01b44f626af5bf02523e97f3c4a7ed8",
-        "revCount": 2665,
+        "rev": "6ee6d1ae8be165f3015b45e8ee7f929aa50099a9",
+        "revCount": 3075,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/CE-Programming/toolchain"
