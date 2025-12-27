@@ -1,4 +1,8 @@
+#include <stdint.h>
+
 #include "error.h"
+
+extern uint8_t *ticevid_vbuffer;
 
 ticevid_result_t ticevid_draw_init(void);
 

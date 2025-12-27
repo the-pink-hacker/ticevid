@@ -1,13 +1,19 @@
 #include <ti/screen.h>
 #include <graphx.h>
 #include <fontlibc.h>
+#include <lcddrvce.h>
 
 #include "error.h"
 #include "usb.h"
 #include "ui.h"
 #include "video.h"
 
+static uint8_t *ticevid_vbuffer;
+
 ticevid_result_t ticevid_draw_init(void) {
+    lcd_Init();
+    // Run LCD at 48 HZ
+    lcd_SetNormalFrameRateControl(LCD_RTN_618 | LCD_NL_DEFAULT);
     os_ClrLCDFull();
     gfx_Begin();
     gfx_ZeroScreen();
@@ -17,6 +23,8 @@ ticevid_result_t ticevid_draw_init(void) {
 }
 
 void ticevid_draw_cleanup(void) {
+    lcd_SetNormalFrameRateControl(LCD_FRCTRL_DEFAULT);
+    lcd_Cleanup();
     gfx_End();
     os_ClrHomeFull();
     os_DrawStatusBar();
@@ -70,6 +78,9 @@ ticevid_result_t ticevid_draw_update(void) {
             break;
     }
 
+    // Half frame rate
+    gfx_SwapDraw();
+    gfx_BlitScreen();
     gfx_SwapDraw();
 
     return TICEVID_SUCCESS;
