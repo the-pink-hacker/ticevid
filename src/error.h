@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 typedef enum [[nodiscard]] {
     TICEVID_SUCCESS = 0,
     TICEVID_USER_EXIT,
@@ -18,5 +20,20 @@ typedef enum [[nodiscard]] {
     TICEVID_QOI_TAG,
 } ticevid_result_t;
 
+void ticevid_error_print(char *text);
+
+void ticevid_error_set_file_line(char *file, uint24_t line);
+
 // Continues if success, else returns.
-#define EARLY_EXIT(a) ({ ticevid_result_t result = a; if (result != TICEVID_SUCCESS) { return result; } })
+#define EARLY_EXIT(a) ({\
+    ticevid_result_t result = a;\
+    if (result != TICEVID_SUCCESS) {\
+        return result;\
+    }\
+})
+
+// Returns an error and sets debug file and line number
+#define RETURN_ERROR(e) ({\
+    ticevid_error_set_file_line(__FILE__, __LINE__);\
+    return e;\
+})

@@ -5,7 +5,7 @@
 
 static ticevid_result_t ticevid_update_loop(void) {
     if (ticevid_io_pressing_exit()) {
-        return TICEVID_USER_EXIT;
+        RETURN_ERROR(TICEVID_USER_EXIT);
     }
 
     EARLY_EXIT(ticevid_ui_update());

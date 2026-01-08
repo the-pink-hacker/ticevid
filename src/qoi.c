@@ -71,11 +71,11 @@ ticevid_result_t ticevid_qoi_decode(
             *output_buffer = pixel;
             output_buffer++;
         } else {
-            return TICEVID_QOI_TAG;
+            RETURN_ERROR(TICEVID_QOI_TAG);
         }
 
         if (output_buffer - start >= max_pixels) {
-            return TICEVID_SUCCESS;
+            RETURN_ERROR(TICEVID_SUCCESS);
         }
     }
 

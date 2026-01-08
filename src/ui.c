@@ -19,7 +19,7 @@ static ticevid_result_t ticevid_font_load(void) {
     uint8_t file = ti_Open(TICEVID_FONT_DEFAULT, "r");
 
     if (file == 0) {
-        return TICEVID_FONT_MISSING;
+        RETURN_ERROR(TICEVID_FONT_MISSING);
     }
 
     fontlib_font_pack_t *font_pack = ti_GetDataPtr(file);
@@ -28,7 +28,7 @@ static ticevid_result_t ticevid_font_load(void) {
     fontlib_font_t *font = fontlib_GetFontByIndexRaw(font_pack, 0);
 
     if (font == NULL) {
-        return TICEVID_FONT_INVALID;
+        RETURN_ERROR(TICEVID_FONT_INVALID);
     }
 
     fontlib_SetFont(font, 0);

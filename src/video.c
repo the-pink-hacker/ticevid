@@ -6,6 +6,7 @@
 #include "qoi.h"
 #include "usb.h"
 #include "video.h"
+#include "io.h"
 
 const uint8_t TICEVID_DEFAULT_SCHEMA_VERSION = 0;
 const uint24_t TICEVID_BLOCKS_PER_HEADER = 16;
@@ -34,12 +35,12 @@ static ticevid_result_t _offset_pointer(void *pointer) {
     void **deref = (void **)pointer;
 
     if (*deref == NULL) {
-        return TICEVID_VIDEO_CONTAINER_NULL;
+        RETURN_ERROR(TICEVID_VIDEO_CONTAINER_NULL);
     }
 
     // Out of bounds check
     if ((uint24_t)deref > pointer_max_offset) {
-        return TICEVID_VIDEO_CONTAINER_INVALID;
+        RETURN_ERROR(TICEVID_VIDEO_CONTAINER_INVALID);
     }
 
     *deref += pointer_offset;
@@ -60,7 +61,7 @@ static ticevid_result_t ticevid_video_allocate_chunk_buffers() {
         void *chunk = malloc(TICEVID_CHUNK_SIZE);
 
         if (chunk == NULL) {
-            return TICEVID_VIDEO_CHUNK_MEMORY;
+            RETURN_ERROR(TICEVID_VIDEO_CHUNK_MEMORY);
         }
 
         ticevid_video_chunk[i] = chunk;
@@ -80,7 +81,7 @@ static ticevid_result_t ticevid_video_caption_track_init(ticevid_caption_track_t
     EARLY_EXIT(offset_pointer(&caption->name));
     
     if (caption->chunk_block_count == 0 || caption->chunk_count == 0) {
-        return TICEVID_VIDEO_CONTAINER_TITLE;
+        RETURN_ERROR(TICEVID_VIDEO_CONTAINER_TITLE);
     }
 
     return TICEVID_SUCCESS;
@@ -97,23 +98,23 @@ static ticevid_result_t ticevid_video_title_init(ticevid_title_t *title) {
 
     // Count is zero if null
     if (title->color_palette == NULL && title->color_palette_count != 0) {
-        return TICEVID_VIDEO_CONTAINER_TITLE;
+        RETURN_ERROR(TICEVID_VIDEO_CONTAINER_TITLE);
     }
 
     offset_pointer_null(&title->color_palette);
     offset_pointer_null(&title->icon);
 
     if (title->height > LCD_HEIGHT) {
-        return TICEVID_VIDEO_CONTAINER_TITLE;
+        RETURN_ERROR(TICEVID_VIDEO_CONTAINER_TITLE);
     }
 
     if (title->frame_count == 0) {
-        return TICEVID_VIDEO_CONTAINER_TITLE;
+        RETURN_ERROR(TICEVID_VIDEO_CONTAINER_TITLE);
     }
 
     // Count is zero if null
     if (title->caption_tracks == NULL && title->caption_track_count != 0) {
-        return TICEVID_VIDEO_CONTAINER_TITLE;
+        RETURN_ERROR(TICEVID_VIDEO_CONTAINER_TITLE);
     }
 
     offset_pointer_null(&title->caption_tracks);
@@ -125,7 +126,7 @@ static ticevid_result_t ticevid_video_title_init(ticevid_title_t *title) {
 
     // Count is zero if null
     if (title->chapter_table == NULL && title->chapter_count != 0) {
-        return TICEVID_VIDEO_CONTAINER_TITLE;
+        RETURN_ERROR(TICEVID_VIDEO_CONTAINER_TITLE);
     }
 
     offset_pointer_null(&title->chapter_table);
@@ -143,7 +144,7 @@ static ticevid_result_t check_version(ticevid_container_version_t version) {
     if (version.major == 0 && version.minor == 1) {
         return TICEVID_SUCCESS;
     } else {
-        return TICEVID_VIDEO_CONTAINER_VERSION;
+        RETURN_ERROR(TICEVID_VIDEO_CONTAINER_VERSION);
     }
 }
 
@@ -157,14 +158,14 @@ static ticevid_result_t ticevid_video_container_init() {
     uint24_t header_size = (uint24_t)container->header_size;
 
     if (header_size == 0 || header_size > TICEVID_HEADER_SIZE) {
-        return TICEVID_VIDEO_CONTAINER_INVALID;
+        RETURN_ERROR(TICEVID_VIDEO_CONTAINER_INVALID);
     }
 
     // Save some memory by shrinking the buffer to the size
     container = realloc(container, container->header_size);
 
     if (container == NULL) {
-        return TICEVID_VIDEO_HEADER_MEMORY;
+        RETURN_ERROR(TICEVID_VIDEO_HEADER_MEMORY);
     }
 
     ticevid_video_container_header = container;
@@ -174,7 +175,7 @@ static ticevid_result_t ticevid_video_container_init() {
     pointer_offset = (uint24_t)container;
 
     if (container->title_count == 0) {
-        return TICEVID_VIDEO_CONTAINER_INVALID;
+        RETURN_ERROR(TICEVID_VIDEO_CONTAINER_INVALID);
     }
 
     EARLY_EXIT(offset_pointer(&container->title_table));
@@ -186,7 +187,7 @@ static ticevid_result_t ticevid_video_container_init() {
 
     // Font index should be zero if no font pack is provided.
     if (container->font_pack == NULL && container->ui_font_index != 0) {
-        return TICEVID_VIDEO_CONTAINER_INVALID;
+        RETURN_ERROR(TICEVID_VIDEO_CONTAINER_INVALID);
     }
 
     offset_pointer_null(&container->font_pack);
@@ -205,7 +206,7 @@ ticevid_result_t ticevid_video_init(void) {
 
     // If null
     if (!ticevid_video_is_loaded()) {
-        return TICEVID_VIDEO_CHUNK_MEMORY;
+        RETURN_ERROR(TICEVID_VIDEO_CHUNK_MEMORY);
     }
 
     EARLY_EXIT(ticevid_video_allocate_chunk_buffers());
@@ -218,7 +219,13 @@ void ticevid_video_cleanup(void) {
     ticevid_video_free_chunk_buffers();
 }
 
+static bool loaded = false;
+
 ticevid_result_t ticevid_video_play_update(void) {
+    if (loaded || !ticevid_io_pressing_enter()) {
+        RETURN_ERROR(TICEVID_SUCCESS);
+    }
+
     return TICEVID_SUCCESS;
 }
 

@@ -182,12 +182,13 @@ pub async fn serialize_container(
                 .u16(VERSION.0)
                 .u8(VERSION.1)
                 .u8(VERSION.2)
+                .dynamic_u16(SectorId::Header, SectorId::HeaderEnd, 0)
                 .u8(title_count)
                 .dynamic_u24(SectorId::Header, SectorId::TitleTable, 0)
                 // Font pack
                 .null_24()
                 // UI font index
-                .u8(0),
+                .null_8(),
         )
         .sector(SectorId::TitleTable, title_table_builder);
 
@@ -225,24 +226,25 @@ pub async fn serialize_container(
                 .u24(frame_count)
                 .u8(title.fps)
                 // Caption track count
-                .u8(0)
+                .null_8()
                 // Caption tracks
                 .null_24()
                 // Caption foreground
                 .u8(0xFF)
                 // Caption background
-                .u8(0)
+                .null_8()
                 // Caption transparent
                 // TODO: Add bools to serseg
                 .u8(1)
                 // Chapter count
-                .u8(0)
+                .null_8()
                 // Chapter table
                 .null_24()
-                .dynamic_u16(
+                .dynamic_u8_chunk(
                     SectorId::PictureChunk(first_picture_chunk_id),
                     SectorId::PictureChunkEnd(first_picture_chunk_id),
                     0,
+                    (BLOCK_SIZE as usize, ScaleRounding::Ceiling),
                 )
                 .dynamic_u24_chunk(
                     SectorId::Chunks,

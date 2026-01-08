@@ -66,7 +66,7 @@ static ticevid_result_t ticevid_usb_connect_device(void) {
         );
 
         if (result != USB_SUCCESS) {
-            return TICEVID_USB_INIT_ERROR;
+            RETURN_ERROR(TICEVID_USB_INIT_ERROR);
         }
 
         while (result == USB_SUCCESS) {
@@ -77,7 +77,7 @@ static ticevid_result_t ticevid_usb_connect_device(void) {
             // This could take some time maybe?
             // So the user can exit
             if (ticevid_io_pressing_exit()) {
-                return TICEVID_USER_EXIT;
+                RETURN_ERROR(TICEVID_USER_EXIT);
             }
 
             result = usb_WaitForInterrupt();
@@ -85,7 +85,7 @@ static ticevid_result_t ticevid_usb_connect_device(void) {
     } while (result == USB_USER_ERROR);
 
     if (result != USB_SUCCESS) {
-        return TICEVID_USB_ENABLE_ERROR;
+        RETURN_ERROR(TICEVID_USB_ENABLE_ERROR);
     }
 
     return TICEVID_SUCCESS;
@@ -99,7 +99,7 @@ static ticevid_result_t ticevid_usb_setup_msd(void) {
     );
 
     if (open_result != MSD_SUCCESS) {
-        return TICEVID_MSD_OPEN_ERROR;
+        RETURN_ERROR(TICEVID_MSD_OPEN_ERROR);
     }
 
     return TICEVID_SUCCESS;
@@ -129,7 +129,7 @@ ticevid_result_t ticevid_usb_copy_chunk(uint24_t chunk, uint8_t blocks, uint8_t 
 
     if (amount_read != blocks) {
         msd_Close(&usb_state.msd);
-        return TICEVID_MSD_READ_ERROR;
+        RETURN_ERROR(TICEVID_MSD_READ_ERROR);
     }
 
     return TICEVID_SUCCESS;

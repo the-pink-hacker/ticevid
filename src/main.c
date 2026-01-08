@@ -2,7 +2,6 @@
 
 #include "error.h"
 #include "init.h"
-#include "io.h"
 #include "update.h"
 
 static int ticevid_handle_errors(ticevid_result_t result) {
@@ -11,43 +10,43 @@ static int ticevid_handle_errors(ticevid_result_t result) {
         case TICEVID_USER_EXIT:
             return 0;
         case TICEVID_USB_INIT_ERROR:
-            ticevid_io_println("USB init failure.");
+            ticevid_error_print("USB init failure.");
             break;
         case TICEVID_USB_ENABLE_ERROR:
-            ticevid_io_println("USB enable failure.");
+            ticevid_error_print("USB enable failure.");
             break;
         case TICEVID_MSD_OPEN_ERROR:
-            ticevid_io_println("USB MSD open failure.");
+            ticevid_error_print("USB MSD open failure.");
             break;
         case TICEVID_MSD_READ_ERROR:
-            ticevid_io_println("USB MSD read failure.");
+            ticevid_error_print("USB MSD read failure.");
             break;
         case TICEVID_VIDEO_HEADER_MEMORY:
-            ticevid_io_println("Insufficient memory for video header.");
+            ticevid_error_print("Insufficient memory for video header.");
             break;
         case TICEVID_VIDEO_CHUNK_MEMORY:
-            ticevid_io_println("Insufficient memory for video chunk.");
+            ticevid_error_print("Insufficient memory for video chunk.");
             break;
         case TICEVID_VIDEO_CONTAINER_INVALID:
-            ticevid_io_println("Failed to parse container header.");
+            ticevid_error_print("Failed to parse container header.");
             break;
         case TICEVID_VIDEO_CONTAINER_NULL:
-            ticevid_io_println("Container offset is null.");
+            ticevid_error_print("Container offset is null.");
             break;
         case TICEVID_VIDEO_CONTAINER_VERSION:
-            ticevid_io_println("Container version unsupported.");
+            ticevid_error_print("Container version unsupported.");
             break;
         case TICEVID_VIDEO_CONTAINER_TITLE:
-            ticevid_io_println("Failed to parse container title.");
+            ticevid_error_print("Failed to parse container title.");
             break;
         case TICEVID_FONT_MISSING:
-            ticevid_io_println("Selected font is missing from system.");
+            ticevid_error_print("Selected font is missing from system.");
             break;
         case TICEVID_FONT_INVALID:
-            ticevid_io_println("Selected font is invalid.");
+            ticevid_error_print("Selected font is invalid.");
             break;
         case TICEVID_QOI_TAG:
-            ticevid_io_println("QOI Tag invalid.");
+            ticevid_error_print("QOI Tag invalid.");
             break;
     }
 

@@ -8,7 +8,7 @@
 #include "ui.h"
 #include "video.h"
 
-static uint8_t *ticevid_vbuffer;
+uint8_t *ticevid_vbuffer;
 
 ticevid_result_t ticevid_draw_init(void) {
     lcd_Init();
