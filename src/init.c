@@ -3,11 +3,7 @@
 #include "draw.h"
 
 ticevid_result_t ticevid_init(void) {
-    ticevid_result_t result = ticevid_draw_init();
-
-    if (result != TICEVID_SUCCESS) {
-        return result;
-    }
+    EARLY_EXIT(ticevid_draw_init());
 
     ticevid_usb_init();
 

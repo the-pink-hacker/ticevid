@@ -33,8 +33,6 @@ void ticevid_draw_cleanup(void) {
 }
 
 ticevid_result_t ticevid_draw_update(void) {
-    ticevid_result_t result;
-
     switch (ui_state) {
         case TICEVID_UI_MAIN:
             gfx_FillScreen(0xFF);
@@ -69,12 +67,7 @@ ticevid_result_t ticevid_draw_update(void) {
             fontlib_DrawString("Done.");
             break;
         case TICEVID_UI_PLAYING:
-            result = ticevid_video_play_draw();
-
-            if (result != TICEVID_SUCCESS) {
-                return result;
-            }
-
+            EARLY_EXIT(ticevid_video_play_draw());
             break;
     }
 

@@ -46,6 +46,9 @@ static int ticevid_handle_errors(ticevid_result_t result) {
         case TICEVID_FONT_INVALID:
             ticevid_io_println("Selected font is invalid.");
             break;
+        case TICEVID_QOI_TAG:
+            ticevid_io_println("QOI Tag invalid.");
+            break;
     }
 
     while (!os_GetKey());

@@ -8,11 +8,7 @@ static ticevid_result_t ticevid_update_loop(void) {
         return TICEVID_USER_EXIT;
     }
 
-    ticevid_result_t result = ticevid_ui_update();
-
-    if (result != TICEVID_SUCCESS) {
-        return result;
-    }
+    EARLY_EXIT(ticevid_ui_update());
 
     return ticevid_draw_update();
 }

@@ -13,7 +13,7 @@ extern const uint24_t TICEVID_CHUNK_SIZE;
 typedef struct ticevid_caption_track {
     char *name;
     uint8_t font_index;
-    uint16_t chunk_size;
+    uint8_t chunk_block_count;
     uint24_t chunk_start;
     uint24_t chunk_count;
 } ticevid_caption_track_t;
@@ -38,7 +38,7 @@ typedef struct ticevid_title {
     bool caption_transparent;
     uint8_t chapter_count;
     ticevid_chapter_t **chapter_table;
-    uint16_t picture_chunk_size;
+    uint8_t picture_chunk_block_count;
     uint24_t picture_chunk;
 } ticevid_title_t;
 
@@ -50,13 +50,26 @@ typedef struct ticevid_container_version {
 
 typedef struct ticevid_container_header {
     ticevid_container_version_t version;
+    uint16_t header_size;
     uint8_t title_count;
     ticevid_title_t **title_table;
     fontlib_font_pack_t *font_pack;
     uint8_t ui_font_index;
 } ticevid_container_header_t;
 
-// This buffer is always the max size of the header (TICEVID_HEADER_SIZE)
+typedef struct ticevid_picture_chunk {
+    uint8_t chunk_block_count;
+    uint16_t image_size;
+    uint8_t image[];
+} ticevid_picture_chunk_t;
+
+typedef struct ticevid_start_picture_chunk {
+    uint24_t chunk_start;
+    uint8_t chunk_count;
+    uint8_t next_frame_block_count;
+    ticevid_picture_chunk_t chunk;
+} ticevid_start_picture_chunk_t;
+
 extern ticevid_container_header_t *ticevid_video_container_header;
 
 ticevid_result_t ticevid_video_init(void);

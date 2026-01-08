@@ -15,6 +15,7 @@ typedef enum [[nodiscard]] {
     TICEVID_VIDEO_CONTAINER_TITLE,
     TICEVID_FONT_MISSING,
     TICEVID_FONT_INVALID,
+    TICEVID_QOI_TAG,
 } ticevid_result_t;
 
 // Continues if success, else returns.

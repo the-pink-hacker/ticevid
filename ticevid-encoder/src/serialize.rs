@@ -6,12 +6,13 @@ use std::{
 use anyhow::Context;
 use image::{DynamicImage, ImageReader};
 use log::debug;
+use serseg::prelude::ScaleRounding;
 use tokio::io::AsyncWriteExt;
 use u24::u24;
 
 use crate::{
-    CHUNK_SIZE, FRAME_FORMAT, FRAME_FORMAT_EXTENSION, HEADER_SIZE, LCD_HEIGHT, LCD_WIDTH,
-    PICTURE_IMAGE_SIZE, PICTURE_START_IMAGE_SIZE,
+    BLOCK_SIZE, CHUNK_SIZE, FRAME_FORMAT, FRAME_FORMAT_EXTENSION, HEADER_SIZE, LCD_HEIGHT,
+    LCD_WIDTH, PICTURE_IMAGE_SIZE, PICTURE_START_IMAGE_SIZE,
     definition::title::TitleDefinition,
     encode::{FrameEncoder, QoiEncoder},
 };
@@ -285,10 +286,13 @@ pub async fn serialize_container(
 
             let mut picture_sector_builder = SectorBuilder::default();
 
+            // Are there more than one chunks?
             picture_sector_builder = if chunk_sizes.len() > 1 {
+                // The amount of non-starting chunks
                 let chunk_count = chunk_sizes.len() as u8 - 1;
 
-                let next_chunk_id = PictureChunkId {
+                // The first non-start chunk
+                let first_chunk_id = PictureChunkId {
                     title_index,
                     frame,
                     chunk_index: 1,
@@ -297,22 +301,26 @@ pub async fn serialize_container(
                 picture_sector_builder
                     .dynamic_u24_chunk(
                         SectorId::Chunks,
-                        SectorId::PictureChunk(next_chunk_id),
+                        SectorId::PictureChunk(first_chunk_id),
                         0,
                         CHUNK_SIZE as usize,
                     )
                     .u8(chunk_count)
-                    .dynamic_u16(
-                        SectorId::PictureChunk(next_chunk_id),
-                        SectorId::PictureChunkEnd(next_chunk_id),
+                    .dynamic_u8_chunk(
+                        SectorId::PictureChunk(first_chunk_id),
+                        SectorId::PictureChunkEnd(first_chunk_id),
                         0,
+                        (BLOCK_SIZE as usize, ScaleRounding::Ceiling),
                     )
             } else {
-                picture_sector_builder.null_24().u8(0).null_16()
+                // Only chunk this frame
+                picture_sector_builder.null_24().null_8().null_8()
             };
 
+            // Is last frame?
             picture_sector_builder = if frame_sizes_iter.is_empty() {
-                picture_sector_builder.null_16()
+                // No more frames
+                picture_sector_builder.null_8()
             } else {
                 let next_frame_id = PictureChunkId {
                     title_index,
@@ -320,17 +328,18 @@ pub async fn serialize_container(
                     chunk_index: 0,
                 };
 
-                picture_sector_builder.dynamic_u16(
+                picture_sector_builder.dynamic_u8_chunk(
                     SectorId::PictureChunk(next_frame_id),
                     SectorId::PictureChunkEnd(next_frame_id),
                     0,
+                    (BLOCK_SIZE as usize, ScaleRounding::Ceiling),
                 )
             };
 
             builder = builder
                 .sector(
                     SectorId::PictureChunk(first_picture_chunk_id),
-                    picture_sector_builder.external(
+                    picture_sector_builder.u16(chunk_sizes[0] as u16).external(
                         picture_chunk_path(frame_index as u32 + 1, 0, frames_directory),
                         chunk_sizes[0],
                     ),
@@ -368,7 +377,7 @@ pub async fn serialize_container(
                 let mut sector_builder = SectorBuilder::default();
 
                 sector_builder = if chunk_sizes_iter.is_empty() {
-                    sector_builder.null_16()
+                    sector_builder.null_8()
                 } else {
                     let next_chunk_id = PictureChunkId {
                         title_index,
@@ -376,17 +385,18 @@ pub async fn serialize_container(
                         chunk_index: chunk_index as u8 + 1,
                     };
 
-                    sector_builder.dynamic_u16(
+                    sector_builder.dynamic_u8_chunk(
                         SectorId::PictureChunk(next_chunk_id),
                         SectorId::PictureChunkEnd(next_chunk_id),
                         0,
+                        (BLOCK_SIZE as usize, ScaleRounding::Ceiling),
                     )
                 };
 
                 builder = builder
                     .sector(
                         SectorId::PictureChunk(picture_id),
-                        sector_builder.external(
+                        sector_builder.u16(chunk_size as u16).external(
                             picture_chunk_path(
                                 frame_index as u32 + 1,
                                 chunk_index as u8,

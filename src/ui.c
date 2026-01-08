@@ -45,11 +45,7 @@ ticevid_result_t ticevid_ui_update(void) {
     switch (ui_state) {
         case TICEVID_UI_MAIN:
             if (ticevid_font_main == NULL) {
-                ticevid_result_t result = ticevid_font_load();
-                
-                if (result != TICEVID_SUCCESS) {
-                    return result;
-                }
+                EARLY_EXIT(ticevid_font_load());
             }
 
             if (ticevid_io_pressing_enter()) {
@@ -59,13 +55,9 @@ ticevid_result_t ticevid_ui_update(void) {
             break;
         case TICEVID_UI_LOADING_VIDEO_SELECT:
             if (!ticevid_usb_connected()) {
-                ticevid_result_t result = ticevid_usb_attempt_connection();
+                EARLY_EXIT(ticevid_usb_attempt_connection());
 
-                if (result != TICEVID_SUCCESS) {
-                    return result;
-                }
-
-                result = ticevid_video_load_header();
+                ticevid_result_t result = ticevid_video_load_header();
 
                 ui_state = TICEVID_UI_TITLE_SELECT;
 
