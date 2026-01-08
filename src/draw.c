@@ -33,6 +33,8 @@ void ticevid_draw_cleanup(void) {
 }
 
 ticevid_result_t ticevid_draw_update(void) {
+    ticevid_vbuffer = *gfx_vbuffer;
+
     switch (ui_state) {
         case TICEVID_UI_MAIN:
             gfx_FillScreen(0xFF);

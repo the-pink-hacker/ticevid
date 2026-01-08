@@ -137,6 +137,8 @@ impl QoiEncoder {
         pixels: &mut Peekable<I>,
         output_buffer: &mut [u8],
     ) -> QoiControl {
+        // TODO: Fix diff
+        return QoiControl::Invalid;
         if let Some(&pixel) = pixels.peek() {
             let diff = pixel.wrapping_sub(self.previous_pixel).cast_signed();
 

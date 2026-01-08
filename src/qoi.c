@@ -28,13 +28,13 @@ void ticevid_qoi_init_frame() {
 }
 
 ticevid_result_t ticevid_qoi_decode(
-    uint24_t length,
+    uint16_t length,
     uint24_t max_pixels,
     uint8_t *input_buffer
 ) {
     uint24_t start = (uint24_t)output_buffer;
 
-    for (uint24_t i = 0; i < length; i++) {
+    for (uint16_t i = 0; i < length; i++) {
         uint8_t tag = input_buffer[i];
 
         if ((tag & QOI_TAG_LITERAL) == QOI_TAG_LITERAL) {
@@ -50,14 +50,15 @@ ticevid_result_t ticevid_qoi_decode(
             memset(output_buffer, previous_pixel, repeat);
             output_buffer += repeat;
         } else if ((tag & 0b10000000) == QOI_TAG_DIFF) {
+            // TODO: Fix diff
             uint8_t diff = tag & 0b0111111;
             
             uint8_t pixel;
 
             if (diff <= 63) {
-                pixel = previous_pixel - diff - 1;
+                pixel = previous_pixel - (diff + 1);
             } else {
-                pixel = previous_pixel + (128 - diff);
+                pixel = previous_pixel + (129 - diff);
             }
 
             previous_pixel = pixel;
@@ -74,8 +75,8 @@ ticevid_result_t ticevid_qoi_decode(
             RETURN_ERROR(TICEVID_QOI_TAG);
         }
 
-        if (output_buffer - start >= max_pixels) {
-            RETURN_ERROR(TICEVID_SUCCESS);
+        if ((uint24_t)output_buffer - start >= max_pixels) {
+            return TICEVID_SUCCESS;
         }
     }
 

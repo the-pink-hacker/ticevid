@@ -66,6 +66,7 @@ ticevid_result_t ticevid_ui_update(void) {
 
             break;
         case TICEVID_UI_TITLE_SELECT:
+            ui_state = TICEVID_UI_LOADING_VIDEO;
             break;
         case TICEVID_UI_LOADING_VIDEO:
             ui_state = TICEVID_UI_PLAYING;
