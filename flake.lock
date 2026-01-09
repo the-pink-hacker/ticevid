@@ -1,5 +1,23 @@
 {
   "nodes": {
+    "cemu-ti": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1767519126,
+        "narHash": "sha256-6XFZtzwQT+DaCZjO9VbtmZiF5sO0J36FBjQA2bmdp5o=",
+        "ref": "refs/heads/master",
+        "rev": "516d420d1ab929472f78b3ecc8366b35520f1041",
+        "revCount": 2606,
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/CE-Programming/CEmu"
+      },
+      "original": {
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/CE-Programming/CEmu"
+      }
+    },
     "convbin": {
       "flake": false,
       "locked": {
@@ -16,22 +34,6 @@
         "submodules": true,
         "type": "git",
         "url": "https://github.com/mateoconlechuga/convbin"
-      }
-    },
-    "decbot4Src": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1723476330,
-        "narHash": "sha256-hnbm14A222Y7zZ+KRcLpJN3t93/CB7eB2H0cjp2IKEM=",
-        "owner": "cemetech",
-        "repo": "decbot4",
-        "rev": "ab7b0bb7662d5bf750d68f15370cb78ad828a80a",
-        "type": "gitlab"
-      },
-      "original": {
-        "owner": "cemetech",
-        "repo": "decbot4",
-        "type": "gitlab"
       }
     },
     "flake-utils": {
@@ -192,8 +194,8 @@
     },
     "toolchain": {
       "inputs": {
+        "cemu-ti": "cemu-ti",
         "convbin": "convbin",
-        "decbot4Src": "decbot4Src",
         "flake-utils": "flake-utils_2",
         "llvm-ez80": "llvm-ez80",
         "nixpkgs": [
@@ -202,11 +204,11 @@
         "toolchain": "toolchain_2"
       },
       "locked": {
-        "lastModified": 1766779260,
-        "narHash": "sha256-jsX+zqWcLhw9c1i+d6KXswr5P3z/FZLXREQTwRC97zM=",
+        "lastModified": 1767984784,
+        "narHash": "sha256-ZfyLkw185QMuDRTNy1lwKeYhGAMwQfHji57IYSNyMCw=",
         "owner": "the-pink-hacker",
         "repo": "ce-toolchain-nix",
-        "rev": "ed107951b6f781242eddeaf4ec721d946257ce01",
+        "rev": "0c228c3f9ad4b598ae0af31e61ff2c9d4d145e5b",
         "type": "github"
       },
       "original": {
