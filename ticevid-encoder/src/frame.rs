@@ -15,7 +15,9 @@ impl TitleDefinition {
             .to_os_string();
 
         let mut frames_folder = output_directory.join(video_name);
-        frames_folder.as_mut_os_string().push("-frames");
+        frames_folder
+            .as_mut_os_string()
+            .push(format!("-{}-frames", self.name));
 
         Ok(frames_folder)
     }

@@ -74,12 +74,6 @@ static ticevid_result_t ticevid_usb_connect_device(void) {
                 break;
             }
 
-            // This could take some time maybe?
-            // So the user can exit
-            if (ticevid_io_pressing_exit()) {
-                RETURN_ERROR(TICEVID_USER_EXIT);
-            }
-
             result = usb_WaitForInterrupt();
         }
     } while (result == USB_USER_ERROR);

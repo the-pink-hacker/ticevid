@@ -16,3 +16,20 @@ source = "video_en_us_cc.ass"
 [titles.captions.fr_fr]
 type = "external"
 source = "video_fr_fr.srt"
+
+[[titles]]
+name = "Ya Like Jazz"
+video = "video.mkv"
+durration.minutes = 2
+height = 212
+fps = 24
+
+[title.start]
+minutes = 22
+seconds = 29
+
+[[titles]]
+name = "Bee Movie (At 1 FPS)"
+video = "video.mkv"
+height = 212
+fps = 1

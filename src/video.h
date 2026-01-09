@@ -81,3 +81,6 @@ ticevid_result_t ticevid_video_load_header(void);
 ticevid_result_t ticevid_video_play_update(void);
 
 ticevid_result_t ticevid_video_play_draw(void);
+
+// Select which title should be played
+void ticevid_video_select_title(ticevid_title_t *title);

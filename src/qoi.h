@@ -2,7 +2,7 @@
 
 #include "error.h"
 
-void ticevid_qoi_init_frame();
+void ticevid_qoi_init_frame(void);
 
 ticevid_result_t ticevid_qoi_decode(
     // How many bytes to read from the input buffer

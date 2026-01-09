@@ -10,4 +10,9 @@ typedef enum ticevid_ui_state {
 
 extern ticevid_ui_state_t ui_state;
 
+extern uint8_t ticevid_ui_title_select_index;
+
+// Sets the font colors to the default colors
+void ticevid_ui_text_color_default(void);
+
 ticevid_result_t ticevid_ui_update(void);

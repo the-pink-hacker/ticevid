@@ -61,7 +61,12 @@ ticevid_result_t ticevid_draw_update(void) {
             for (uint8_t i = 0; i < container.title_count; i++) {
                 ticevid_title_t title = *container.title_table[i];
 
-                fontlib_DrawString("  ");
+                if (i == ticevid_ui_title_select_index) {
+                    fontlib_DrawString(" >");
+                } else {
+                    fontlib_DrawString("  ");
+                }
+
                 fontlib_DrawString(title.name);
                 fontlib_Newline();
             }

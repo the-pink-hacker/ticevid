@@ -4,6 +4,8 @@
 #include "ui.h"
 
 static ticevid_result_t ticevid_update_loop(void) {
+    ticevid_io_update();
+
     if (ticevid_io_pressing_exit()) {
         RETURN_ERROR(TICEVID_USER_EXIT);
     }

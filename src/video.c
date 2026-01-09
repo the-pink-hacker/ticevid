@@ -18,15 +18,13 @@ const uint24_t TICEVID_CHUNK_SIZE = MSD_BLOCK_SIZE * TICEVID_BLOCKS_PER_CHUNK;
 // Not a const to avoid gnu-folding-constant warning
 #define TICEVID_BUFFER_COUNT 4
 
-//static uint24_t current_frame = 0;
-//static uint24_t current_chunk = 0;
-//static uint24_t last_frame_of_chunk = 0;
-
 ticevid_container_header_t *ticevid_video_container_header;
 uint8_t *ticevid_video_chunks[TICEVID_BUFFER_COUNT];
 
 static uint24_t pointer_offset;
 static uint24_t pointer_max_offset;
+
+static ticevid_title_t *selected_title;
 
 static bool ticevid_video_is_loaded(void) {
     return ticevid_video_container_header != NULL;
@@ -57,7 +55,7 @@ static inline ticevid_result_t offset_pointer(void *pointer) {
     return _offset_pointer(pointer);
 }
 
-static ticevid_result_t ticevid_video_allocate_chunk_buffers() {
+static ticevid_result_t ticevid_video_allocate_chunk_buffers(void) {
     for (uint8_t i = 0; i < TICEVID_BUFFER_COUNT; i++) {
         void *chunk = malloc(TICEVID_CHUNK_SIZE);
 
@@ -71,7 +69,7 @@ static ticevid_result_t ticevid_video_allocate_chunk_buffers() {
     return TICEVID_SUCCESS;
 }
 
-static void ticevid_video_free_chunk_buffers() {
+static void ticevid_video_free_chunk_buffers(void) {
     for (uint8_t i = 0; i < TICEVID_BUFFER_COUNT; i++) {
         free(ticevid_video_chunks[i]);
     }
@@ -150,7 +148,7 @@ static ticevid_result_t check_version(ticevid_container_version_t version) {
 }
 
 // Unsures every offset is a valid pointer
-static ticevid_result_t ticevid_video_container_init() {
+static ticevid_result_t ticevid_video_container_init(void) {
     ticevid_container_header_t *container = ticevid_video_container_header;
 
     // Ignore patch version
@@ -272,4 +270,8 @@ ticevid_result_t ticevid_video_play_draw(void) {
     ));
 
     return TICEVID_SUCCESS;
+}
+
+void ticevid_video_select_title(ticevid_title_t *title) {
+    selected_title = title;
 }

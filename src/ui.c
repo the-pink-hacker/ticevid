@@ -11,9 +11,18 @@
 
 ticevid_ui_state_t ui_state = TICEVID_UI_MAIN;
 
+uint8_t ticevid_ui_title_select_index = 0;
+
 static const char *TICEVID_FONT_DEFAULT = "TICEVIDF";
 
+static const uint8_t COLOR_TEXT = 0x00;
+
 static fontlib_font_t *ticevid_font_main;
+
+void ticevid_ui_set_color_default(void) {
+    fontlib_SetForegroundColor(COLOR_TEXT);
+    fontlib_SetTransparency(true);
+}
 
 static ticevid_result_t ticevid_font_load(void) {
     uint8_t file = ti_Open(TICEVID_FONT_DEFAULT, "r");
@@ -33,8 +42,7 @@ static ticevid_result_t ticevid_font_load(void) {
 
     fontlib_SetFont(font, 0);
     ticevid_font_main = font;
-    fontlib_SetColors(0, 0xFF);
-    fontlib_SetTransparency(true);
+    ticevid_ui_set_color_default();
     fontlib_SetNewlineOptions(FONTLIB_ENABLE_AUTO_WRAP);
     fontlib_SetWindowFullScreen();
 
@@ -42,6 +50,8 @@ static ticevid_result_t ticevid_font_load(void) {
 }
 
 ticevid_result_t ticevid_ui_update(void) {
+    ticevid_container_header_t *container = ticevid_video_container_header;
+
     switch (ui_state) {
         case TICEVID_UI_MAIN:
             if (ticevid_font_main == NULL) {
@@ -66,7 +76,31 @@ ticevid_result_t ticevid_ui_update(void) {
 
             break;
         case TICEVID_UI_TITLE_SELECT:
-            ui_state = TICEVID_UI_LOADING_VIDEO;
+
+            if (ticevid_io_pressing_enter()) {
+                ticevid_title_t *title = container->title_table[ticevid_ui_title_select_index];
+
+                ticevid_video_select_title(title);
+                ui_state = TICEVID_UI_LOADING_VIDEO;
+                break;
+            }
+
+            if (ticevid_io_pressed_up()) {
+                if (ticevid_ui_title_select_index == 0) {
+                    ticevid_ui_title_select_index = container->title_count - 1;
+                } else {
+                    ticevid_ui_title_select_index--;
+                }
+            }
+
+            if (ticevid_io_pressed_down()) {
+                // The last index
+                if (ticevid_ui_title_select_index == container->title_count - 1) {
+                    ticevid_ui_title_select_index = 0;
+                } else {
+                    ticevid_ui_title_select_index++;
+                }
+            }
             break;
         case TICEVID_UI_LOADING_VIDEO:
             ui_state = TICEVID_UI_PLAYING;
