@@ -21,10 +21,10 @@ static void index_insert(uint8_t value) {
     index[index_hash(value)] = value;
 }
 
-void ticevid_qoi_init_frame() {
+void ticevid_qoi_init_frame(uint24_t pixel_offset) {
     memset(index, 0, sizeof(index));
     previous_pixel = 0;
-    output_buffer = ticevid_vbuffer;
+    output_buffer = &ticevid_vbuffer[pixel_offset];
 }
 
 ticevid_result_t ticevid_qoi_decode(

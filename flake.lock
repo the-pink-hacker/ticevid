@@ -179,11 +179,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1767845694,
-        "narHash": "sha256-nZCKuvYuLIcE/ScJTtr0sCCvaQD+mM1np1sO6ihG47c=",
+        "lastModified": 1767993364,
+        "narHash": "sha256-o+3aSSsnIQ17C1NI/jque8H7djyzqb2QuPTbS7fv7Ts=",
         "owner": "the-pink-hacker",
         "repo": "tice-rust",
-        "rev": "5f7c48294c642738b35a5887f64952216428cf32",
+        "rev": "0a51b5c0e678de3a077ff97a22a72527ac2c56d7",
         "type": "github"
       },
       "original": {

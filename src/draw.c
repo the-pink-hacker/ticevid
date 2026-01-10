@@ -32,28 +32,31 @@ void ticevid_draw_cleanup(void) {
     ticevid_video_cleanup();
 }
 
+static void ticevid_draw_status(char *text) {
+    gfx_FillScreen(0xFF);
+    fontlib_ClearWindow();
+    fontlib_HomeUp();
+    fontlib_DrawString(text);
+}
+
 ticevid_result_t ticevid_draw_update(void) {
     ticevid_vbuffer = *gfx_vbuffer;
 
     switch (ui_state) {
         case TICEVID_UI_MAIN:
-            gfx_FillScreen(0xFF);
-            fontlib_ClearWindow();
-            fontlib_HomeUp();
-            fontlib_DrawString("TICEVID: The USB Video Player\nPress enter to connect to USB device.");
+            ticevid_draw_status("TICEVID: The USB Video Player\nPress enter to connect to USB device.");
+            break;
+        case TICEVID_UI_LOADING_VIDEO_SELECT_PRE:
+            ticevid_draw_status("Waiting for USB connection...");
             break;
         case TICEVID_UI_LOADING_VIDEO_SELECT:
+            ticevid_draw_status("Loading container header...");
+            break;
         case TICEVID_UI_LOADING_VIDEO:
-            gfx_FillScreen(0xFF);
-            fontlib_ClearWindow();
-            fontlib_HomeUp();
-            fontlib_DrawString("Loading...");
+            ticevid_draw_status("Loading video...");
             break;
         case TICEVID_UI_TITLE_SELECT:
-            gfx_FillScreen(0xFF);
-            fontlib_ClearWindow();
-            fontlib_HomeUp();
-            fontlib_DrawString("Select title.");
+            ticevid_draw_status("Select title.");
             fontlib_Newline();
 
             ticevid_container_header_t container = *ticevid_video_container_header;
@@ -73,6 +76,9 @@ ticevid_result_t ticevid_draw_update(void) {
 
             fontlib_DrawString("Done.");
             break;
+        case TICEVID_UI_PLAYING_PRE:
+            gfx_ZeroScreen();
+            ui_state = TICEVID_UI_PLAYING;
         case TICEVID_UI_PLAYING:
             EARLY_EXIT(ticevid_video_play_draw());
             break;

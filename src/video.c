@@ -25,6 +25,9 @@ static uint24_t pointer_offset;
 static uint24_t pointer_max_offset;
 
 static ticevid_title_t *selected_title;
+static uint24_t max_pixels = LCD_SIZE;
+// How many pixels offset should the image be
+static uint24_t pixel_offset;
 
 static bool ticevid_video_is_loaded(void) {
     return ticevid_video_container_header != NULL;
@@ -147,8 +150,7 @@ static ticevid_result_t check_version(ticevid_container_version_t version) {
     }
 }
 
-// Unsures every offset is a valid pointer
-static ticevid_result_t ticevid_video_container_init(void) {
+ticevid_result_t ticevid_video_container_init(void) {
     ticevid_container_header_t *container = ticevid_video_container_header;
 
     // Ignore patch version
@@ -202,13 +204,13 @@ ticevid_result_t ticevid_video_load_header(void) {
         (uint8_t *)ticevid_video_container_header
     ));
 
-    return ticevid_video_container_init();
+    return TICEVID_SUCCESS;
 }
 
 // Loads but doesn't init a chunk
 static ticevid_result_t ticevid_video_load_chunk(uint24_t chunk_index, void *buffer) {
     EARLY_EXIT(ticevid_usb_copy_chunk(
-        TICEVID_BLOCKS_PER_HEADER + (TICEVID_BLOCKS_PER_CHUNK * chunk_index),
+        TICEVID_BLOCKS_PER_HEADER + (TICEVID_BLOCKS_PER_CHUNK * (uint32_t)chunk_index),
         TICEVID_BLOCKS_PER_CHUNK,
         buffer
     ));
@@ -238,40 +240,48 @@ void ticevid_video_cleanup(void) {
     ticevid_video_free_chunk_buffers();
 }
 
-static bool loaded = false;
+static bool loading = false;
 
 ticevid_result_t ticevid_video_play_update(void) {
-    if (loaded) {
+    if (loading) {
         return TICEVID_SUCCESS;
     }
 
-    EARLY_EXIT(ticevid_video_load_chunk(500, ticevid_video_chunks[0]));
+    EARLY_EXIT(ticevid_video_load_chunk(
+        selected_title->picture_chunk,
+        ticevid_video_chunks[0]
+    ));
 
-    loaded = true;
+    loading = true;
 
     return TICEVID_SUCCESS;
 }
 
 ticevid_result_t ticevid_video_play_draw(void) {
-    if (!loaded) {
-        gfx_FillScreen(0x80);
-        return TICEVID_SUCCESS;
+    ticevid_result_t result = ticevid_usb_msd_poll();
+
+    switch (result) {
+        case TICEVID_MSD_ASYNC_WAIT:
+            return TICEVID_SUCCESS;
+        case TICEVID_SUCCESS:
+            ticevid_qoi_init_frame(pixel_offset);
+
+            ticevid_start_picture_chunk_t *chunk = (ticevid_start_picture_chunk_t *)ticevid_video_chunks[0];
+            
+            EARLY_EXIT(ticevid_qoi_decode(
+                chunk->chunk.image_size,
+                max_pixels,
+                chunk->chunk.image
+            ));
+
+            return TICEVID_SUCCESS;
+        default:
+            return result;
     }
-
-    gfx_ZeroScreen();
-    ticevid_qoi_init_frame();
-
-    ticevid_start_picture_chunk_t *chunk = (ticevid_start_picture_chunk_t *)ticevid_video_chunks[0];
-
-    EARLY_EXIT(ticevid_qoi_decode(
-        8184, //chunk->chunk.image_size,
-        LCD_WIDTH * 212,
-        (uint8_t *)((uint24_t)chunk + 8)
-    ));
-
-    return TICEVID_SUCCESS;
 }
 
 void ticevid_video_select_title(ticevid_title_t *title) {
     selected_title = title;
+    max_pixels = LCD_WIDTH * title->height;
+    pixel_offset = ((LCD_WIDTH * LCD_HEIGHT) - (LCD_WIDTH * title->height)) / 2;
 }

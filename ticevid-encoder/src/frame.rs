@@ -49,11 +49,11 @@ impl TitleDefinition {
             .option("probesize", "100M")
             .option("analyzeduration", "100M");
 
-        if let Some(start) = self.start.clone() {
+        if let Some(start) = self.start {
             input = input.seek(start.into());
         }
 
-        if let Some(duration) = self.durration.clone() {
+        if let Some(duration) = self.durration {
             input = input.duration(duration.into());
         }
 

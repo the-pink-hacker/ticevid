@@ -367,7 +367,7 @@ source = "main/10x16/lowercase_y"
 
 [[font.glyphs]]
 index = "z"
-source = "main/10x16/lowercase_y"
+source = "main/10x16/lowercase_z"
 
 [[font.glyphs]]
 index = "{"

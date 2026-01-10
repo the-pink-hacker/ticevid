@@ -72,6 +72,9 @@ typedef struct ticevid_start_picture_chunk {
 
 extern ticevid_container_header_t *ticevid_video_container_header;
 
+// Unsures every offset is a valid pointer and other validation
+ticevid_result_t ticevid_video_container_init(void);
+
 ticevid_result_t ticevid_video_init(void);
 
 void ticevid_video_cleanup(void);

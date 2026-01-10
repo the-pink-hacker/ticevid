@@ -21,6 +21,15 @@ struct usb_state {
 
 static usb_state_t usb_state;
 
+typedef struct msd_state {
+    // The async read is fully writen
+    bool completed;
+    // The error from the callback
+    msd_error_t error;
+} msd_state_t;
+
+static msd_state_t msd_state;
+
 static usb_error_t ticevid_usb_handle_event(
     usb_event_t event,
     void *event_data,
@@ -101,6 +110,7 @@ static ticevid_result_t ticevid_usb_setup_msd(void) {
 
 void ticevid_usb_init(void) {
     memset(&usb_state, 0, sizeof(usb_state_t));
+    memset(&msd_state, 0, sizeof(msd_state_t));
 }
 
 ticevid_result_t ticevid_usb_attempt_connection(void) {
@@ -118,11 +128,42 @@ void ticevid_usb_cleanup(void) {
     usb_Cleanup();
 }
 
-ticevid_result_t ticevid_usb_copy_chunk(uint24_t start_block, uint8_t blocks, uint8_t *buffer) {
-    uint24_t amount_read = msd_Read(&usb_state.msd, start_block, blocks, buffer);
+// Called on completion
+static void _msd_async_callback(msd_error_t error, msd_transfer_t *xfer) {
+    (void)xfer;
+    msd_state.error = error;
+    msd_state.completed = true;
+}
 
-    if (amount_read != blocks) {
+ticevid_result_t ticevid_usb_copy_chunk(uint32_t start_block, uint8_t blocks, uint8_t *buffer) {
+    msd_transfer_t transfer;
+
+    transfer.msd = &usb_state.msd;
+    transfer.lba = 0;//start_block;
+    transfer.count = 1;//blocks;
+    transfer.buffer = buffer;
+    transfer.callback = _msd_async_callback;
+
+    msd_error_t result = msd_ReadAsync(&transfer);
+
+    if (result != MSD_SUCCESS) {
         msd_Close(&usb_state.msd);
+        RETURN_ERROR(TICEVID_MSD_READ_ERROR);
+    }
+
+    return TICEVID_SUCCESS;
+}
+
+ticevid_result_t ticevid_usb_msd_poll(void) {
+    if (!msd_state.completed) {
+        // No need for RETURN_ERROR
+        // Should be handled by the caller
+        return TICEVID_MSD_ASYNC_WAIT;
+    }
+
+    msd_state.completed = false;
+
+    if (msd_state.error != MSD_SUCCESS) {
         RETURN_ERROR(TICEVID_MSD_READ_ERROR);
     }
 

@@ -14,7 +14,7 @@ env_logger.workspace = true
 futures-util = "0.3.31"
 image = { workspace = true, features = ["qoi"] }
 indexmap.workspace = true
-log = { workspace = true, features = ["max_level_trace", "release_max_level_info", "std"] }
+log = { workspace = true, features = ["max_level_trace", "release_max_level_debug", "std"] }
 lzss = { workspace = true, features = ["std"] }
 num_cpus.workspace = true
 rlimit.workspace = true

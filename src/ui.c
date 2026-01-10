@@ -59,24 +59,41 @@ ticevid_result_t ticevid_ui_update(void) {
             }
 
             if (ticevid_io_pressing_enter()) {
-                ui_state = TICEVID_UI_LOADING_VIDEO_SELECT;
+                ui_state = TICEVID_UI_LOADING_VIDEO_SELECT_PRE;
             }
 
             break;
-        case TICEVID_UI_LOADING_VIDEO_SELECT:
+        // Connect to usb and start loading header
+        case TICEVID_UI_LOADING_VIDEO_SELECT_PRE:
             if (!ticevid_usb_connected()) {
                 EARLY_EXIT(ticevid_usb_attempt_connection());
 
                 ticevid_result_t result = ticevid_video_load_header();
 
-                ui_state = TICEVID_UI_TITLE_SELECT;
+                ui_state = TICEVID_UI_LOADING_VIDEO_SELECT;
 
                 return result;
             }
 
             break;
-        case TICEVID_UI_TITLE_SELECT:
+        // Waiting for header to finish loading
+        case TICEVID_UI_LOADING_VIDEO_SELECT: {
+            ticevid_result_t result = ticevid_usb_msd_poll();
 
+            switch (result) {
+                case TICEVID_MSD_ASYNC_WAIT:
+                    break;
+                case TICEVID_SUCCESS:
+                    EARLY_EXIT(ticevid_video_container_init());
+                    ui_state = TICEVID_UI_TITLE_SELECT;
+                    break;
+                default:
+                    return result;
+            }
+
+            break;
+        }
+        case TICEVID_UI_TITLE_SELECT:
             if (ticevid_io_pressing_enter()) {
                 ticevid_title_t *title = container->title_table[ticevid_ui_title_select_index];
 
@@ -105,6 +122,7 @@ ticevid_result_t ticevid_ui_update(void) {
         case TICEVID_UI_LOADING_VIDEO:
             ui_state = TICEVID_UI_PLAYING;
             break;
+        case TICEVID_UI_PLAYING_PRE:
         case TICEVID_UI_PLAYING:
             return ticevid_video_play_update();
     }

@@ -12,6 +12,10 @@ ticevid_result_t ticevid_usb_attempt_connection(void);
 
 void ticevid_usb_cleanup(void);
 
-ticevid_result_t ticevid_usb_copy_chunk(uint24_t start_block, uint8_t blocks, uint8_t *buffer);
+ticevid_result_t ticevid_usb_copy_chunk(uint32_t start_block, uint8_t blocks, uint8_t *buffer);
+
+// Check if read is completed
+// Not finished on TICEVID_MSD_ASYNC_WAIT
+ticevid_result_t ticevid_usb_msd_poll(void);
 
 bool ticevid_usb_connected(void);

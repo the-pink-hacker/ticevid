@@ -776,7 +776,7 @@ dependencies = [
 [[package]]
 name = "serseg"
 version = "0.1.0"
-source = "git+https://github.com/the-pink-hacker/tice-rust#5f7c48294c642738b35a5887f64952216428cf32"
+source = "git+https://github.com/the-pink-hacker/tice-rust#0a51b5c0e678de3a077ff97a22a72527ac2c56d7"
 dependencies = [
  "anyhow",
  "indexmap",

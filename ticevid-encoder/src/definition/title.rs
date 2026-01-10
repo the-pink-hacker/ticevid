@@ -39,7 +39,7 @@ pub struct TitleMetadata {
     pub fps: u8,
 }
 
-#[derive(Debug, Deserialize, Default, Clone)]
+#[derive(Debug, Deserialize, Default, Clone, Copy)]
 #[serde(default)]
 pub struct TitleDuration {
     pub milliseconds: u32,

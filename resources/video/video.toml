@@ -24,7 +24,7 @@ durration.minutes = 2
 height = 212
 fps = 24
 
-[title.start]
+[titles.start]
 minutes = 22
 seconds = 29
 

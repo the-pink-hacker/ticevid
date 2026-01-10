@@ -47,6 +47,8 @@ static int ticevid_handle_errors(ticevid_result_t result) {
             break;
         case TICEVID_QOI_TAG:
             ticevid_error_print("QOI Tag invalid.");
+        // Should never be ran
+        case TICEVID_MSD_ASYNC_WAIT:
             break;
     }
 
