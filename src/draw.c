@@ -56,7 +56,7 @@ ticevid_result_t ticevid_draw_update(void) {
             ticevid_draw_status("Loading video...");
             break;
         case TICEVID_UI_TITLE_SELECT:
-            ticevid_draw_status("Select title.");
+            ticevid_draw_status("Select title:");
             fontlib_Newline();
 
             ticevid_container_header_t container = *ticevid_video_container_header;
@@ -73,10 +73,11 @@ ticevid_result_t ticevid_draw_update(void) {
                 fontlib_DrawString(title.name);
                 fontlib_Newline();
             }
-
-            fontlib_DrawString("Done.");
             break;
         case TICEVID_UI_PLAYING_PRE:
+            gfx_SetDrawScreen();
+            gfx_ZeroScreen();
+            gfx_SetDrawBuffer();
             gfx_ZeroScreen();
             ui_state = TICEVID_UI_PLAYING;
         case TICEVID_UI_PLAYING:

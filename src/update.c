@@ -2,6 +2,7 @@
 #include "error.h"
 #include "io.h"
 #include "ui.h"
+#include "usb.h"
 
 static ticevid_result_t ticevid_update_loop(void) {
     ticevid_io_update();
@@ -10,6 +11,7 @@ static ticevid_result_t ticevid_update_loop(void) {
         RETURN_ERROR(TICEVID_USER_EXIT);
     }
 
+    EARLY_EXIT(ticevid_usb_update());
     EARLY_EXIT(ticevid_ui_update());
 
     return ticevid_draw_update();

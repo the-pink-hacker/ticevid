@@ -120,7 +120,7 @@ ticevid_result_t ticevid_ui_update(void) {
             }
             break;
         case TICEVID_UI_LOADING_VIDEO:
-            ui_state = TICEVID_UI_PLAYING;
+            ui_state = TICEVID_UI_PLAYING_PRE;
             break;
         case TICEVID_UI_PLAYING_PRE:
         case TICEVID_UI_PLAYING:

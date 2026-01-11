@@ -10,9 +10,6 @@
 #include "io.h"
 
 const uint8_t TICEVID_DEFAULT_SCHEMA_VERSION = 0;
-const uint24_t TICEVID_BLOCKS_PER_HEADER = 16;
-const uint24_t TICEVID_HEADER_SIZE = MSD_BLOCK_SIZE * TICEVID_BLOCKS_PER_HEADER;
-const uint24_t TICEVID_BLOCKS_PER_CHUNK = 16;
 const uint24_t TICEVID_CHUNK_SIZE = MSD_BLOCK_SIZE * TICEVID_BLOCKS_PER_CHUNK;
 
 // Not a const to avoid gnu-folding-constant warning
@@ -158,7 +155,7 @@ ticevid_result_t ticevid_video_container_init(void) {
 
     uint24_t header_size = (uint24_t)container->header_size;
 
-    if (header_size == 0 || header_size > TICEVID_HEADER_SIZE) {
+    if (header_size == 0 || header_size > TICEVID_CHUNK_SIZE) {
         RETURN_ERROR(TICEVID_VIDEO_CONTAINER_INVALID);
     }
 
@@ -200,7 +197,6 @@ ticevid_result_t ticevid_video_container_init(void) {
 ticevid_result_t ticevid_video_load_header(void) {
     EARLY_EXIT(ticevid_usb_copy_chunk(
         0,
-        TICEVID_BLOCKS_PER_HEADER,
         (uint8_t *)ticevid_video_container_header
     ));
 
@@ -210,8 +206,7 @@ ticevid_result_t ticevid_video_load_header(void) {
 // Loads but doesn't init a chunk
 static ticevid_result_t ticevid_video_load_chunk(uint24_t chunk_index, void *buffer) {
     EARLY_EXIT(ticevid_usb_copy_chunk(
-        TICEVID_BLOCKS_PER_HEADER + (TICEVID_BLOCKS_PER_CHUNK * (uint32_t)chunk_index),
-        TICEVID_BLOCKS_PER_CHUNK,
+        TICEVID_BLOCKS_PER_CHUNK * (uint32_t)(chunk_index + 1),
         buffer
     ));
 
@@ -220,7 +215,7 @@ static ticevid_result_t ticevid_video_load_chunk(uint24_t chunk_index, void *buf
 
 
 ticevid_result_t ticevid_video_init(void) {
-    ticevid_video_container_header = (ticevid_container_header_t *)malloc(TICEVID_HEADER_SIZE);
+    ticevid_video_container_header = (ticevid_container_header_t *)malloc(TICEVID_CHUNK_SIZE);
 
     // If null
     if (!ticevid_video_is_loaded()) {

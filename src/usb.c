@@ -12,6 +12,7 @@ typedef struct usb_state usb_state_t;
 #include "error.h"
 #include "io.h"
 #include "usb.h"
+#include "video.h"
 
 struct usb_state {
     usb_device_t device;
@@ -29,6 +30,19 @@ typedef struct msd_state {
 } msd_state_t;
 
 static msd_state_t msd_state;
+
+// Called on completion
+static void _msd_async_callback(msd_error_t error, msd_transfer_t *xfer) {
+    (void)xfer;
+    msd_state.error = error;
+    msd_state.completed = true;
+}
+
+static msd_transfer_t msd_transfer = {
+    .msd = &usb_state.msd,
+    .count = TICEVID_BLOCKS_PER_CHUNK,
+    .callback = _msd_async_callback
+};
 
 static usb_error_t ticevid_usb_handle_event(
     usb_event_t event,
@@ -113,6 +127,16 @@ void ticevid_usb_init(void) {
     memset(&msd_state, 0, sizeof(msd_state_t));
 }
 
+ticevid_result_t ticevid_usb_update(void) {
+    usb_error_t result = usb_HandleEvents();
+    
+    if (result == USB_SUCCESS) {
+        return TICEVID_SUCCESS;
+    } else {
+        RETURN_ERROR(TICEVID_USB_EVENT_ERROR);
+    }
+}
+
 ticevid_result_t ticevid_usb_attempt_connection(void) {
     ticevid_result_t usb_result = ticevid_usb_connect_device();
 
@@ -128,23 +152,11 @@ void ticevid_usb_cleanup(void) {
     usb_Cleanup();
 }
 
-// Called on completion
-static void _msd_async_callback(msd_error_t error, msd_transfer_t *xfer) {
-    (void)xfer;
-    msd_state.error = error;
-    msd_state.completed = true;
-}
+ticevid_result_t ticevid_usb_copy_chunk(uint32_t start_block, uint8_t *buffer) {
+    msd_transfer.lba = start_block;
+    msd_transfer.buffer = buffer;
 
-ticevid_result_t ticevid_usb_copy_chunk(uint32_t start_block, uint8_t blocks, uint8_t *buffer) {
-    msd_transfer_t transfer;
-
-    transfer.msd = &usb_state.msd;
-    transfer.lba = 0;//start_block;
-    transfer.count = 1;//blocks;
-    transfer.buffer = buffer;
-    transfer.callback = _msd_async_callback;
-
-    msd_error_t result = msd_ReadAsync(&transfer);
+    msd_error_t result = msd_ReadAsync(&msd_transfer);
 
     if (result != MSD_SUCCESS) {
         msd_Close(&usb_state.msd);

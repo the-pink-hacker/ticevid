@@ -5,9 +5,7 @@
 #include "error.h"
 
 extern const uint8_t TICEVID_DEFAULT_SCHEMA_VERSION;
-extern const uint24_t TICEVID_BLOCKS_PER_HEADER;
-extern const uint24_t TICEVID_HEADER_SIZE;
-extern const uint24_t TICEVID_BLOCKS_PER_CHUNK;
+#define TICEVID_BLOCKS_PER_CHUNK 16
 extern const uint24_t TICEVID_CHUNK_SIZE;
 
 typedef struct ticevid_caption_track {

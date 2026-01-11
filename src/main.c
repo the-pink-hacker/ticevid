@@ -15,6 +15,9 @@ static int ticevid_handle_errors(ticevid_result_t result) {
         case TICEVID_USB_ENABLE_ERROR:
             ticevid_error_print("USB enable failure.");
             break;
+        case TICEVID_USB_EVENT_ERROR:
+            ticevid_error_print("USB event error.");
+            break;
         case TICEVID_MSD_OPEN_ERROR:
             ticevid_error_print("USB MSD open failure.");
             break;
