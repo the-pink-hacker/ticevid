@@ -80,8 +80,7 @@ All offsets are relative from the start of the start of the header.
 | `caption_transparent`       | `bool`             | Whether the caption background is transparent. Overrides background color. |
 | `chapter_count`             | `u8`               | The number of chapters in the title.                                       |
 | `chapter_table`             | `?[&Chapter]`      | All chapters in the title.[^1]                                             |
-| `picture_chunk_block_count` | `u8`               | The amount of blocks the first picture takes up.[^4]                       |
-| `picture_chunk`             | `u24`              | The index of the first picture chunk.                                      |
+| `picture_chunk_table`       | `u24`              | The chunk index of the picture chunk table.                                |
 
 ### Caption Track
 
@@ -102,27 +101,27 @@ All offsets are relative from the start of the start of the header.
 
 ## Chunks
 
-All offsets are relative to the start of the chunk.
-Chunks have an alignment of 16 blocks and should never exceed 16 blocks in size.
+All offsets are relative to the start of the chunk. Chunks have an alignment of 1 block.
 
-## Start Picture Chunk
+## Picture Chunk Table Chunk
 
-Subsequent picture chunks only contain image data for their payload.
+| Field   | Type                 | Description                                           |
+|---------|----------------------|-------------------------------------------------------|
+| `table` | `[PictureChunkInfo]` | Length is equal to the number of frames in the title. |
 
-| Field                    | Type           | Description                                                              |
-|--------------------------|----------------|--------------------------------------------------------------------------|
-| `chunk_start`            | `u24`          | The index of the remaining chunks start at. `0` if last chunk.           |
-| `chunk_count`            | `u8`           | The number of remaining chunks in the frame.                             |
-| `next_frame_block_count` | `u8`           | The amount of blocks in the next frame's first chunk. `0` if last frame. |
-| `picture`                | `PictureChunk` | A modified version of the Quite OK Image format (QOI).                   |
+### Picture Chunk Info
+
+| Field          | Type  | Description                                     |
+|----------------|-------|-------------------------------------------------|
+| `block_count`  | `u16` | How many blocks does the picture chunk take up. |
+| `chunk_index`  | `u24` | The chunk index of the picture chunk.           |
 
 ## Picture Chunk
 
-| Field               | Type   | Description                                                                      |
-|---------------------|--------|----------------------------------------------------------------------------------|
-| `chunk_block_count` | `u8`   | The amount of blocks in the next chunk in the frame. `0` if last chunk in frame. |
-| `image_size`        | `u16`  | The length of `image` in bytes.[^4]                                              |
-| `image`             | `[u8]` | A modified version of the Quite OK Image format (QOI).                           |
+| Field        | Type   | Description                                            |
+|--------------|--------|--------------------------------------------------------|
+| `image_size` | `u16`  | The length of `image` in bytes.[^4]                    |
+| `image`      | `[u8]` | A modified version of the Quite OK Image format (QOI). |
 
 ## Caption Chunk
 

@@ -179,11 +179,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1767993364,
-        "narHash": "sha256-o+3aSSsnIQ17C1NI/jque8H7djyzqb2QuPTbS7fv7Ts=",
+        "lastModified": 1769291548,
+        "narHash": "sha256-ZAkf5mEn4XH+0xTGFbGTrlYOrAgxR/QNrCC4d0/u1AY=",
         "owner": "the-pink-hacker",
         "repo": "tice-rust",
-        "rev": "0a51b5c0e678de3a077ff97a22a72527ac2c56d7",
+        "rev": "f59bc7d41081edc4eba2a523ed725287fa54da35",
         "type": "github"
       },
       "original": {
@@ -204,11 +204,11 @@
         "toolchain": "toolchain_2"
       },
       "locked": {
-        "lastModified": 1767984784,
-        "narHash": "sha256-ZfyLkw185QMuDRTNy1lwKeYhGAMwQfHji57IYSNyMCw=",
+        "lastModified": 1769295317,
+        "narHash": "sha256-6WcIv+GrCBtwFvl8XhTrgINkAzCM0VbWMtsGCFcqfl8=",
         "owner": "the-pink-hacker",
         "repo": "ce-toolchain-nix",
-        "rev": "0c228c3f9ad4b598ae0af31e61ff2c9d4d145e5b",
+        "rev": "9f7edbe83e00259b72749de63931af3383d05e0d",
         "type": "github"
       },
       "original": {
