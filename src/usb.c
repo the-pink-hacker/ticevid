@@ -40,7 +40,6 @@ static void _msd_async_callback(msd_error_t error, msd_transfer_t *xfer) {
 
 static msd_transfer_t msd_transfer = {
     .msd = &usb_state.msd,
-    .count = TICEVID_BLOCKS_PER_CHUNK,
     .callback = _msd_async_callback
 };
 
@@ -127,7 +126,8 @@ void ticevid_usb_init(void) {
     memset(&msd_state, 0, sizeof(msd_state_t));
 }
 
-ticevid_result_t ticevid_usb_update(void) {
+// Checks for usb events and runs their callbacks
+ticevid_result_t _handle_events(void) {
     usb_error_t result = usb_HandleEvents();
     
     if (result == USB_SUCCESS) {
@@ -135,6 +135,10 @@ ticevid_result_t ticevid_usb_update(void) {
     } else {
         RETURN_ERROR(TICEVID_USB_EVENT_ERROR);
     }
+}
+
+ticevid_result_t ticevid_usb_update(void) {
+    return _handle_events();
 }
 
 ticevid_result_t ticevid_usb_attempt_connection(void) {
@@ -152,10 +156,12 @@ void ticevid_usb_cleanup(void) {
     usb_Cleanup();
 }
 
-ticevid_result_t ticevid_usb_copy_chunk(uint32_t start_block, uint8_t *buffer) {
+ticevid_result_t ticevid_usb_copy_chunk(uint32_t start_block, uint24_t block_count, uint8_t *buffer) {
     msd_transfer.lba = start_block;
+    msd_transfer.count = block_count;
     msd_transfer.buffer = buffer;
 
+    msd_state.completed = false;
     msd_error_t result = msd_ReadAsync(&msd_transfer);
 
     if (result != MSD_SUCCESS) {
@@ -173,13 +179,26 @@ ticevid_result_t ticevid_usb_msd_poll(void) {
         return TICEVID_MSD_ASYNC_WAIT;
     }
 
-    msd_state.completed = false;
-
     if (msd_state.error != MSD_SUCCESS) {
         RETURN_ERROR(TICEVID_MSD_READ_ERROR);
     }
 
     return TICEVID_SUCCESS;
+}
+
+ticevid_result_t ticevid_usb_msd_block(void) {
+    ticevid_result_t result;
+
+    do {
+        EARLY_EXIT(_handle_events());
+        result = ticevid_usb_msd_poll();
+    } while (result == TICEVID_MSD_ASYNC_WAIT);
+
+    if (result == TICEVID_SUCCESS) {
+        return TICEVID_SUCCESS;
+    } else {
+        RETURN_ERROR(result);
+    }
 }
 
 bool ticevid_usb_connected(void) {

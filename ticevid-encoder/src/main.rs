@@ -33,9 +33,6 @@ pub const BLOCKS_PER_CHUNK: u8 = 16;
 pub const CHUNK_SIZE: u16 = BLOCK_SIZE * BLOCKS_PER_CHUNK as u16;
 pub const SCHEMA_VERSION: u24 = u24::checked_from_u32(0).unwrap();
 
-pub const PICTURE_IMAGE_SIZE: usize = CHUNK_SIZE as usize - 3;
-pub const PICTURE_START_IMAGE_SIZE: usize = PICTURE_IMAGE_SIZE - 5;
-
 pub const FRAME_FORMAT: ImageFormat = ImageFormat::Qoi;
 pub const FRAME_FORMAT_EXTENSION: &str = "qoi";
 
@@ -72,7 +69,7 @@ async fn encode_title(
     title_directory: &Path,
     output_directory: &Path,
     threads: usize,
-) -> anyhow::Result<(Vec<Vec<usize>>, PathBuf, TitleDefinition)> {
+) -> anyhow::Result<(Vec<usize>, PathBuf, TitleDefinition)> {
     let frames_folder = Arc::new(title.frames_folder(output_directory)?);
 
     let frame_count = title.create_frames(title_directory, &frames_folder).await?;
@@ -97,14 +94,14 @@ async fn encode_title(
     let mut sum = 0.0;
     let mut frames = 0u32;
 
-    let mut frame_chunk_sizes = Vec::with_capacity(frame_count as usize);
+    let mut frame_sizes = Vec::new();
 
     while let Some(join) = frame_stream.next().await {
-        let (bytes, chunk_sizes) = join??;
+        let bytes = join??;
         sum += bytes as f32;
         frames += 1;
 
-        frame_chunk_sizes.push(chunk_sizes);
+        frame_sizes.push(bytes);
 
         if frames.is_multiple_of(title.fps.into()) || frames == frame_count {
             info!(
@@ -120,7 +117,7 @@ async fn encode_title(
     info!("Encoding took {time:.2} MS.");
     info!("Average size {:.0} bytes.", sum / frames as f32);
 
-    Ok((frame_chunk_sizes, frames_folder.to_path_buf(), title))
+    Ok((frame_sizes, frames_folder.to_path_buf(), title))
 }
 
 #[tokio::main]

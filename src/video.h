@@ -6,7 +6,6 @@
 
 extern const uint8_t TICEVID_DEFAULT_SCHEMA_VERSION;
 #define TICEVID_BLOCKS_PER_CHUNK 16
-extern const uint24_t TICEVID_CHUNK_SIZE;
 
 typedef struct ticevid_caption_track {
     char *name;
@@ -36,8 +35,7 @@ typedef struct ticevid_title {
     bool caption_transparent;
     uint8_t chapter_count;
     ticevid_chapter_t **chapter_table;
-    uint8_t picture_chunk_block_count;
-    uint24_t picture_chunk;
+    uint24_t picture_chunk_table;
 } ticevid_title_t;
 
 typedef struct ticevid_container_version {
@@ -55,18 +53,21 @@ typedef struct ticevid_container_header {
     uint8_t ui_font_index;
 } ticevid_container_header_t;
 
+typedef struct ticevid_picture_chunk_info {
+    uint16_t block_count;
+    uint24_t block_index;
+} ticevid_picture_chunk_info_t;
+
+#define TICEVID_FRAME_TABLE_BLOCKS sizeof(ticevid_picture_chunk_info_t)
+
+typedef struct ticevid_picture_chunk_table {
+    ticevid_picture_chunk_info_t chunks[TICEVID_FRAME_TABLE_BLOCKS];
+} ticevid_picture_chunk_table_t;
+
 typedef struct ticevid_picture_chunk {
-    uint8_t chunk_block_count;
     uint16_t image_size;
     uint8_t image[];
 } ticevid_picture_chunk_t;
-
-typedef struct ticevid_start_picture_chunk {
-    uint24_t chunk_start;
-    uint8_t chunk_count;
-    uint8_t next_frame_block_count;
-    ticevid_picture_chunk_t chunk;
-} ticevid_start_picture_chunk_t;
 
 extern ticevid_container_header_t *ticevid_video_container_header;
 

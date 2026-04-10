@@ -80,7 +80,7 @@ All offsets are relative from the start of the start of the header.
 | `caption_transparent`       | `bool`             | Whether the caption background is transparent. Overrides background color. |
 | `chapter_count`             | `u8`               | The number of chapters in the title.                                       |
 | `chapter_table`             | `?[&Chapter]`      | All chapters in the title.[^1]                                             |
-| `picture_chunk_table`       | `u24`              | The chunk index of the picture chunk table.                                |
+| `picture_chunk_table`       | `u24`              | The block index of the picture chunk table.                                |
 
 ### Caption Track
 
@@ -114,7 +114,7 @@ All offsets are relative to the start of the chunk. Chunks have an alignment of 
 | Field          | Type  | Description                                     |
 |----------------|-------|-------------------------------------------------|
 | `block_count`  | `u16` | How many blocks does the picture chunk take up. |
-| `chunk_index`  | `u24` | The chunk index of the picture chunk.           |
+| `block_index`  | `u24` | The block index of the picture chunk.           |
 
 ## Picture Chunk
 
