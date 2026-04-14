@@ -42,7 +42,7 @@ static void ticevid_draw_status(char *text) {
 ticevid_result_t ticevid_draw_update(void) {
     ticevid_vbuffer = *gfx_vbuffer;
 
-    switch (ui_state) {
+    switch (ticevid_ui_get_state()) {
         case TICEVID_UI_MAIN:
             ticevid_draw_status("TICEVID: The USB Video Player\nPress enter to connect to USB device.");
             break;
@@ -79,7 +79,7 @@ ticevid_result_t ticevid_draw_update(void) {
             gfx_ZeroScreen();
             gfx_SetDrawBuffer();
             gfx_ZeroScreen();
-            ui_state = TICEVID_UI_PLAYING;
+            break;
         case TICEVID_UI_PLAYING:
             EARLY_EXIT(ticevid_video_play_draw());
             break;

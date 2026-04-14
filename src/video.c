@@ -13,7 +13,7 @@
 
 const uint8_t TICEVID_DEFAULT_SCHEMA_VERSION = 0;
 const uint24_t TICEVID_HEADER_SIZE = MSD_BLOCK_SIZE * TICEVID_BLOCKS_PER_CHUNK;
-const uint24_t TICEVID_BUFFER_SIZE = MSD_BLOCK_SIZE * TICEVID_BLOCKS_PER_CHUNK;
+const uint24_t TICEVID_BUFFER_SIZE = MSD_BLOCK_SIZE * TICEVID_BUFFER_BLOCKS;
 // Always aligned to block size
 const uint24_t TICEVID_FRAME_TABLE_COUNT = MSD_BLOCK_SIZE;
 const uint24_t TICEVID_FRAME_TABLE_SIZE = TICEVID_FRAME_TABLE_COUNT * TICEVID_FRAME_TABLE_BLOCKS;
@@ -240,6 +240,14 @@ void ticevid_video_cleanup(void) {
     ticevid_video_free_buffers();
 }
 
+static ticevid_result_t _load_chunk_table(uint24_t block) {
+    return _load_block(block, TICEVID_FRAME_TABLE_BLOCKS, picture_chunk_table);
+}
+
+static ticevid_result_t _load_picture_buffer(uint24_t block, uint16_t block_count) {
+    return _load_block(block, block_count, picture_buffer);
+}
+
 // Sets up the frame for drawing
 ticevid_result_t ticevid_video_play_update(void) {
     uint24_t next_frame = current_frame + 1;
@@ -257,12 +265,7 @@ ticevid_result_t ticevid_video_play_update(void) {
         picture_chunk_table_index = 0;
         picture_chunk_table_block += TICEVID_FRAME_TABLE_BLOCKS;
 
-        EARLY_EXIT(_load_block(
-            picture_chunk_table_block,
-            TICEVID_FRAME_TABLE_BLOCKS,
-            picture_chunk_table
-        ));
-
+        EARLY_EXIT(_load_chunk_table(picture_chunk_table_block));
         EARLY_EXIT(ticevid_usb_msd_block());
     } else {
         picture_chunk_table_index++;
@@ -281,9 +284,17 @@ static void _draw_debug(ticevid_picture_chunk_info_t *chunk_info) {
 
     boot_sprintf(
         buffer,
-        "Frame %u/%u: %u",
+        "Frame: %u/%u",
         (unsigned int)current_frame,
-        (unsigned int)selected_title->frame_count,
+        (unsigned int)selected_title->frame_count
+    );
+
+    fontlib_DrawString(buffer);
+    fontlib_Newline();
+
+    boot_sprintf(
+        buffer,
+        "Block Count: %u",
         (unsigned int)chunk_info->block_count
     );
 
@@ -292,8 +303,26 @@ static void _draw_debug(ticevid_picture_chunk_info_t *chunk_info) {
 
     boot_sprintf(
         buffer,
-        "Frame Buf %u/512",
+        "Block Index: %u",
+        (unsigned int)chunk_info->block_index
+    );
+
+    fontlib_DrawString(buffer);
+    fontlib_Newline();
+
+    boot_sprintf(
+        buffer,
+        "Frame Buf: %u/512",
         (unsigned int)picture_chunk_table_index
+    );
+
+    fontlib_DrawString(buffer);
+    fontlib_Newline();
+
+    boot_sprintf(
+        buffer,
+        "Frame Buf Block: %u",
+        (unsigned int)picture_chunk_table_block
     );
 
     fontlib_DrawString(buffer);
@@ -302,9 +331,68 @@ static void _draw_debug(ticevid_picture_chunk_info_t *chunk_info) {
 // Buffers, decodes, and draws the frame
 ticevid_result_t ticevid_video_play_draw(void) {
     ticevid_picture_chunk_info_t chunk_info = picture_chunk_table->chunks[picture_chunk_table_index];
-    ticevid_qoi_init_frame(pixel_offset);
 
-    _draw_debug(&chunk_info);
+    // How many blocks need to be loaded of the current frame
+    uint16_t remaining_blocks = chunk_info.block_count;
+    // The current block
+    uint24_t current_block = chunk_info.block_index;
+
+    // How many blocks to read into the buffer
+    uint16_t block_count;
+
+    if (remaining_blocks > TICEVID_BUFFER_BLOCKS) {
+        block_count = TICEVID_BUFFER_BLOCKS;
+        remaining_blocks -= TICEVID_BUFFER_BLOCKS;
+    } else {
+        block_count = remaining_blocks;
+        remaining_blocks = 0;
+    }
+
+    // Async read start
+    EARLY_EXIT(_load_picture_buffer(current_block, block_count));
+
+    // Do things in mean time
+    ticevid_qoi_init_frame(pixel_offset);
+    //_draw_debug(&chunk_info);
+
+    // Async read finish
+    EARLY_EXIT(ticevid_usb_msd_block());
+
+    uint24_t remaining_bytes = *(uint24_t *)picture_buffer;
+    uint24_t remaining_pixels = max_pixels;
+
+    EARLY_EXIT(ticevid_qoi_decode(
+        remaining_bytes,
+        &remaining_pixels,
+        picture_buffer + sizeof(uint24_t)
+    ));
+
+    do {
+        // Broken
+        break;
+        if (remaining_blocks > TICEVID_BUFFER_BLOCKS) {
+            block_count = TICEVID_BUFFER_BLOCKS;
+            remaining_blocks -= TICEVID_BUFFER_BLOCKS;
+        } else {
+            block_count = remaining_blocks;
+            remaining_blocks = 0;
+        }
+
+        current_block += TICEVID_BUFFER_BLOCKS;
+        remaining_bytes -= TICEVID_BUFFER_SIZE;
+
+        // Async read start
+        EARLY_EXIT(_load_picture_buffer(current_block, block_count));
+
+        // Async read finish
+        EARLY_EXIT(ticevid_usb_msd_block());
+
+        EARLY_EXIT(ticevid_qoi_decode(
+            remaining_bytes,
+            &remaining_pixels,
+            picture_buffer
+        ));
+    } while (remaining_bytes > 0);
 
     return TICEVID_SUCCESS;
 }
@@ -314,5 +402,4 @@ void ticevid_video_select_title(ticevid_title_t *title) {
     max_pixels = LCD_WIDTH * title->height;
     pixel_offset = ((LCD_WIDTH * LCD_HEIGHT) - (LCD_WIDTH * title->height)) / 2;
     picture_chunk_table_block = title->picture_chunk_table - TICEVID_FRAME_TABLE_BLOCKS;
-
 }

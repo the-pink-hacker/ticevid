@@ -6,6 +6,7 @@
 
 extern const uint8_t TICEVID_DEFAULT_SCHEMA_VERSION;
 #define TICEVID_BLOCKS_PER_CHUNK 16
+#define TICEVID_BUFFER_BLOCKS 16
 
 typedef struct ticevid_caption_track {
     char *name;

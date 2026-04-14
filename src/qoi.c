@@ -22,19 +22,19 @@ static void index_insert(uint8_t value) {
 }
 
 void ticevid_qoi_init_frame(uint24_t pixel_offset) {
-    memset(index, 0, sizeof(index));
+    //memset(index, 0, sizeof(index));
     previous_pixel = 0;
     output_buffer = &ticevid_vbuffer[pixel_offset];
 }
 
 ticevid_result_t ticevid_qoi_decode(
     uint16_t length,
-    uint24_t max_pixels,
+    uint24_t *remaining_pixels,
     uint8_t *input_buffer
 ) {
     uint24_t start = (uint24_t)output_buffer;
 
-    for (uint16_t i = 0; i < length; i++) {
+    for (uint24_t i = 0; i < length; i++) {
         uint8_t tag = input_buffer[i];
 
         if ((tag & QOI_TAG_LITERAL) == QOI_TAG_LITERAL) {
@@ -75,10 +75,15 @@ ticevid_result_t ticevid_qoi_decode(
             RETURN_ERROR(TICEVID_QOI_TAG);
         }
 
-        if ((uint24_t)output_buffer - start >= max_pixels) {
+        uint24_t pixels_written = (uint24_t)output_buffer - start;
+
+        if (pixels_written >= *remaining_pixels) {
+            remaining_pixels = 0;
             return TICEVID_SUCCESS;
         }
     }
+
+    *remaining_pixels = (uint24_t)output_buffer - start;
 
     return TICEVID_SUCCESS;
 }

@@ -9,7 +9,8 @@
 #include "io.h"
 #include "video.h"
 
-ticevid_ui_state_t ui_state = TICEVID_UI_MAIN;
+static ticevid_ui_state_t ui_state = TICEVID_UI_MAIN;
+static ticevid_ui_state_t ui_state_next = TICEVID_UI_MAIN;
 
 uint8_t ticevid_ui_title_select_index = 0;
 
@@ -50,6 +51,7 @@ static ticevid_result_t ticevid_font_load(void) {
 }
 
 ticevid_result_t ticevid_ui_update(void) {
+    ui_state = ui_state_next;
     ticevid_container_header_t *container = ticevid_video_container_header;
 
     switch (ui_state) {
@@ -59,7 +61,7 @@ ticevid_result_t ticevid_ui_update(void) {
             }
 
             if (ticevid_io_pressing_enter()) {
-                ui_state = TICEVID_UI_LOADING_VIDEO_SELECT_PRE;
+                ticevid_ui_set_state(TICEVID_UI_LOADING_VIDEO_SELECT_PRE);
             }
 
             break;
@@ -70,7 +72,7 @@ ticevid_result_t ticevid_ui_update(void) {
 
                 ticevid_result_t result = ticevid_video_load_header();
 
-                ui_state = TICEVID_UI_LOADING_VIDEO_SELECT;
+                ticevid_ui_set_state(TICEVID_UI_LOADING_VIDEO_SELECT);
 
                 return result;
             }
@@ -85,7 +87,7 @@ ticevid_result_t ticevid_ui_update(void) {
                     break;
                 case TICEVID_SUCCESS:
                     EARLY_EXIT(ticevid_video_container_init());
-                    ui_state = TICEVID_UI_TITLE_SELECT;
+                    ticevid_ui_set_state(TICEVID_UI_TITLE_SELECT);
                     break;
                 default:
                     return result;
@@ -98,7 +100,7 @@ ticevid_result_t ticevid_ui_update(void) {
                 ticevid_title_t *title = container->title_table[ticevid_ui_title_select_index];
 
                 ticevid_video_select_title(title);
-                ui_state = TICEVID_UI_LOADING_VIDEO;
+                ticevid_ui_set_state(TICEVID_UI_LOADING_VIDEO);
                 break;
             }
 
@@ -120,12 +122,22 @@ ticevid_result_t ticevid_ui_update(void) {
             }
             break;
         case TICEVID_UI_LOADING_VIDEO:
-            ui_state = TICEVID_UI_PLAYING_PRE;
+            ticevid_ui_set_state(TICEVID_UI_PLAYING_PRE);
             break;
         case TICEVID_UI_PLAYING_PRE:
+            ticevid_ui_set_state(TICEVID_UI_PLAYING);
+            break;
         case TICEVID_UI_PLAYING:
             return ticevid_video_play_update();
     }
 
     return TICEVID_SUCCESS;
+}
+
+void ticevid_ui_set_state(ticevid_ui_state_t state) {
+    ui_state_next = state;
+}
+
+ticevid_ui_state_t ticevid_ui_get_state() {
+    return ui_state;
 }

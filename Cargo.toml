@@ -22,10 +22,10 @@ indexmap = "2.12.1"
 log = "0.4.29"
 lzss = { version = "0.9.1", default-features = false }
 num_cpus = "1.17.0"
-rlimit = "0.10.2"
+rlimit = "0.11.0"
 rust_ffmpeg = "1.0.0"
 serde = "1.0.228"
 serseg = { git = "https://github.com/the-pink-hacker/tice-rust", version = "0.1.0" }
 tokio = "1.48.0"
-toml = "0.9.8"
-u24 = "0.5.0"
+toml = "1.1.2"
+u24 = "0.6.0"

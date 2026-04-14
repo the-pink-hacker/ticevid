@@ -87,6 +87,7 @@ enum SectorId {
     HeaderEnd,
     Chunks,
     PictureChunkTable { title_index: u8 },
+    PictureChunkTablePadding { title_index: u8 },
     PictureChunk(PictureChunkId),
     PictureChunkImage(PictureChunkId),
     PictureChunkEnd(PictureChunkId),
@@ -180,7 +181,7 @@ pub async fn serialize_container(
                 // Chapter table
                 .null_24()
                 .dynamic_u24_chunk(
-                    SectorId::Chunks,
+                    SectorId::Header,
                     SectorId::PictureChunkTable { title_index },
                     0,
                     BLOCK_SIZE as usize,
@@ -231,10 +232,15 @@ pub async fn serialize_container(
                 )
         }
 
-        builder = builder.sector(
-            SectorId::PictureChunkTable { title_index },
-            picture_chunk_table_builder,
-        );
+        builder = builder
+            .sector(
+                SectorId::PictureChunkTable { title_index },
+                picture_chunk_table_builder,
+            )
+            .sector(
+                SectorId::PictureChunkTablePadding { title_index },
+                SectorBuilder::default().align(SectorId::Header, BLOCK_SIZE as usize),
+            );
     }
 
     // Picture chunks
@@ -263,8 +269,7 @@ pub async fn serialize_container(
                 .sector_default(SectorId::PictureChunkEnd(chunk_id))
                 .sector(
                     SectorId::PictureChunkPadding(chunk_id),
-                    SectorBuilder::default()
-                        .fill(SectorId::PictureChunkEnd(chunk_id), BLOCK_SIZE as usize),
+                    SectorBuilder::default().align(SectorId::Header, BLOCK_SIZE as usize),
                 );
         }
     }
