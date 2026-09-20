@@ -1,13 +1,29 @@
 {
   "nodes": {
+    "binutils-gdb": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1777434837,
+        "narHash": "sha256-vbyDZJ7dErvUokfJXA4MOOSWsxcQ67igZSSHrq/+Vjg=",
+        "owner": "CE-Programming",
+        "repo": "binutils-gdb",
+        "rev": "89a8b007f165b69450da4dbf82a55bc1fc28703b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "CE-Programming",
+        "repo": "binutils-gdb",
+        "type": "github"
+      }
+    },
     "cemu-ti": {
       "flake": false,
       "locked": {
-        "lastModified": 1767519126,
-        "narHash": "sha256-6XFZtzwQT+DaCZjO9VbtmZiF5sO0J36FBjQA2bmdp5o=",
+        "lastModified": 1788133081,
+        "narHash": "sha256-FhCZNV439/Lr8dBwscJ/sGqto7heOFcDy5SOMmF3ROA=",
         "ref": "refs/heads/master",
-        "rev": "516d420d1ab929472f78b3ecc8366b35520f1041",
-        "revCount": 2606,
+        "rev": "4a945888bca7af1a5cf4b1d2c86426bc3637feea",
+        "revCount": 2698,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/CE-Programming/CEmu"
@@ -21,11 +37,11 @@
     "convbin": {
       "flake": false,
       "locked": {
-        "lastModified": 1720998131,
-        "narHash": "sha256-vBE+jaQBQREKWYrOOEFLXZt8stAAqGhxvTZhEC5+Xds=",
+        "lastModified": 1781017205,
+        "narHash": "sha256-NPCWJikafZaQ7AY2WAW6jjEVu6MUYEKQB7PHTM55bg8=",
         "ref": "refs/heads/master",
-        "rev": "c142a6c5ebb4e83be29961ccf70080cd169a6091",
-        "revCount": 169,
+        "rev": "ba4e4a4ee4be8c86ec7ed48f156a98fcf696536c",
+        "revCount": 204,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/mateoconlechuga/convbin"
@@ -59,11 +75,11 @@
         "systems": "systems_2"
       },
       "locked": {
-        "lastModified": 1726560853,
-        "narHash": "sha256-X6rJYSESBVr3hBoH0WbKE5KvhPU5bloyZ2L4K60/fPQ=",
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
         "owner": "numtide",
         "repo": "flake-utils",
-        "rev": "c1dfcf08411b08f6b8615f7d8971a2bfa81d5e8a",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
         "type": "github"
       },
       "original": {
@@ -75,11 +91,11 @@
     "llvm-ez80": {
       "flake": false,
       "locked": {
-        "lastModified": 1762764369,
-        "narHash": "sha256-ikWuB1CCqG7uy9gpwpCUIawEkiVTUdzPsQJWb+R2Flk=",
+        "lastModified": 1786631516,
+        "narHash": "sha256-hrKUcqi0V/uHQlG4i2X3s+6QjBd99zgSEPgILMISwfs=",
         "owner": "CE-Programming",
         "repo": "llvm-project",
-        "rev": "263e6374ab7ac991c1bac4ed5ae7821242623cc5",
+        "rev": "30cc65df902905b2f7903fd0e5391aea18cbe01e",
         "type": "github"
       },
       "original": {
@@ -90,11 +106,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1764667669,
-        "narHash": "sha256-7WUCZfmqLAssbDqwg9cUDAXrSoXN79eEEq17qhTNM/Y=",
+        "lastModified": 1788404924,
+        "narHash": "sha256-lhEhY8X5EgkQ/eg6IFz4cc8jRuSYSvnxx1al7d1dvZ0=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "418468ac9527e799809c900eda37cbff999199b6",
+        "rev": "0968519e14f7aa7d3e9b389682bd74d2b51c8ce8",
         "type": "github"
       },
       "original": {
@@ -120,11 +136,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1764902447,
-        "narHash": "sha256-wNqkDBj+tjK619sTHPEA7uhjr7DHHEY8OsFou31dxy0=",
+        "lastModified": 1789802016,
+        "narHash": "sha256-QVFfArbYaQMGK4dFV+5RUL72Ci+hNHVhaF/R9qJfDhs=",
         "owner": "oxalica",
         "repo": "rust-overlay",
-        "rev": "d914a744a83098eeb28125d2848ad383b209223f",
+        "rev": "26a71e661c47bd21a05d06fec749f3f7c75e9d12",
         "type": "github"
       },
       "original": {
@@ -179,11 +195,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1775875997,
-        "narHash": "sha256-ilHvuA15ozQ202fhw2m0sBv116RUNf7AlNEOWxukrVc=",
+        "lastModified": 1789780458,
+        "narHash": "sha256-aHbLmTppirDt8Fspi5v9LU7cgs8aoxWxc6JDfHtg4gg=",
         "owner": "the-pink-hacker",
         "repo": "tice-rust",
-        "rev": "aeba6484cf8a184a359d351892ac751ed413b417",
+        "rev": "f9325028e21450c7e8e7122c3cbcad72cd24a1e7",
         "type": "github"
       },
       "original": {
@@ -194,6 +210,7 @@
     },
     "toolchain": {
       "inputs": {
+        "binutils-gdb": "binutils-gdb",
         "cemu-ti": "cemu-ti",
         "convbin": "convbin",
         "flake-utils": "flake-utils_2",
@@ -204,11 +221,11 @@
         "toolchain": "toolchain_2"
       },
       "locked": {
-        "lastModified": 1769295317,
-        "narHash": "sha256-6WcIv+GrCBtwFvl8XhTrgINkAzCM0VbWMtsGCFcqfl8=",
+        "lastModified": 1789622212,
+        "narHash": "sha256-W1Eh08pPigdU+3ltQnKgQ4o2PfqweVFh3zVqiGXOHeE=",
         "owner": "the-pink-hacker",
         "repo": "ce-toolchain-nix",
-        "rev": "9f7edbe83e00259b72749de63931af3383d05e0d",
+        "rev": "82c8c4946f9cf1cb8a44cce15fd3c614ad3addbb",
         "type": "github"
       },
       "original": {
@@ -220,11 +237,11 @@
     "toolchain_2": {
       "flake": false,
       "locked": {
-        "lastModified": 1766392899,
-        "narHash": "sha256-DLs+bfz5R/jwOahSMQMMr5L2f3TrHjcHCib/pq1J7qY=",
+        "lastModified": 1784834814,
+        "narHash": "sha256-XTnrt8+9kQYwlPjwGKcG6Lc+j+3R4aZti5qDq2U85IU=",
         "ref": "refs/heads/master",
-        "rev": "6ee6d1ae8be165f3015b45e8ee7f929aa50099a9",
-        "revCount": 3075,
+        "rev": "ca0936c9ddedfe1fed96a0769a42aebf4fa4aedd",
+        "revCount": 3345,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/CE-Programming/toolchain"
